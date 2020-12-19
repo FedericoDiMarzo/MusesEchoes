@@ -1,3 +1,5 @@
+import numpy as np
+
 """
 list of notes in standard notation
 """
@@ -10,7 +12,7 @@ the modes
 """
 semitone_sequences = [
     [2, 2, 1, 2, 2, 2, 1],  # TTSTTTS
-    [2, 2, 1, 2, 3, 2, 1],
+   # [2, 2, 1, 2, 3, 2, 1],
 ]
 
 
@@ -29,13 +31,27 @@ def get_root(notes):
     pass
 
 
-def harmonic_distance(root, semitone_sequence, notes):
+def get_all_modes(root):
+    modes_note_std = []
+    for i in range(len(semitone_sequences)):  # iterating for different modes families
+        modes_note_std.append([])
+        current_sequence = np.array(semitone_sequences[i])
+        for j in range(7):  # iterating for each mode in the family
+            modes_note_std[i].append([root])
+            last_note = note_list.index(root)
+            for k in range(6):  # iterating for each note in the scale
+                last_note = (last_note + current_sequence[k]) % 12
+                modes_note_std[i][j].append(note_list[last_note])
+            current_sequence = np.roll(current_sequence, -1)  # circular shift of the note sequence
+    return modes_note_std
+
+
+def harmonic_distance(root, notes_std):
     # TODO: implementation
     # step1: extract all the possible modes from the root
+
     # step2: check the how many note are in the scale and how many not, and assign a distance to each
     pass
-
-def
 
 
 class Improvisor:
