@@ -16,21 +16,21 @@ class AudioStream(object):
         :param rate: sample frequency
         """
         # stream constants
-        self.CHUNK = 2048
-        self.FORMAT = pyaudio.paFloat32
-        self.CHANNELS = 1
-        self.RATE = rate
+        self.chunk = 2048
+        self.format = pyaudio.paFloat32
+        self.channels = 1
+        self.rate = rate
         self.pause = False
 
         # stream object
         self.pyaudio = pyaudio.PyAudio()
         self.stream = self.pyaudio.open(
-            format=self.FORMAT,
-            channels=self.CHANNELS,
-            rate=self.RATE,
+            format=self.format,
+            channels=self.channels,
+            rate=self.rate,
             input=True,
             output=True,
-            frames_per_buffer=self.CHUNK,
+            frames_per_buffer=self.chunk,
         )
         print('stream opened')
 
@@ -44,7 +44,7 @@ class AudioStream(object):
         result = b''  # empty binary string
 
         for i in range(number_of_blocks):
-            result = result + self.stream.read(self.CHUNK)
+            result = result + self.stream.read(self.chunk)
 
         return np.fromstring(result, 'Float32')
 
