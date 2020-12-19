@@ -1,4 +1,5 @@
 import numpy as np
+import mido
 
 """
 list of notes in standard notation
@@ -12,7 +13,7 @@ the modes
 """
 semitone_sequences = [
     [2, 2, 1, 2, 2, 2, 1],  # TTSTTTS
-   # [2, 2, 1, 2, 3, 2, 1],
+    [2, 2, 1, 3, 1, 2, 1],
 ]
 
 
@@ -74,3 +75,28 @@ class Improvisor:
         self.currentMode['root'] = root
         self.currentMode['semitone_sequence_index'] = semitone_sequences_index
         self.currentMode['mode_index'] = mode_index
+
+
+def read_midi(midi_path):
+    print("reading midi file " + midi_path)
+    midi_file = mido.MidiFile(midi_path)
+    midi_track = midi_file.tracks[0]  # discarding all other tracks
+    note_on_list = [msg for msg in midi_track if msg.type == 'note_on']
+    note_off_list = [msg for msg in midi_track if msg.type == 'note_off']
+
+    notes = []
+    current_tick_padding = 0
+    for i in range(len(note_on_list)):
+        current_note_on = note_on_list[i]
+        current_note_off = note_off_list[i]
+        abs_start = current_tick_padding + current_note_on.time
+        current_tick_padding = abs_start + current_note_off.time
+        new_note = {
+            'midi_note': current_note_on.note,
+            'abs_start': abs_start,
+            'abs_end': current_tick_padding
+        }
+        notes.append(new_note)
+
+    for note in notes:
+        print(note)
