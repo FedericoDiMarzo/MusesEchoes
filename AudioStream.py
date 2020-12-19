@@ -25,7 +25,6 @@ class AudioStream(object):
             output=True,
             frames_per_buffer=self.CHUNK,
         )
-        print("test")
 
     def read(self, number_of_blocks):
         result = b''
