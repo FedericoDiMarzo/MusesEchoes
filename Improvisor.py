@@ -1,8 +1,7 @@
 """
-dictionary used to connect note names to numbers
+list of notes in standard notation
 """
-notenum_dict = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
-                'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11}
+note_list = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 """
 this data structure contains all the
@@ -15,9 +14,14 @@ semitone_sequences = [
 ]
 
 
-def midi_to_notenum(midinote):
-    notenum = midinote%12
-    return notenum
+def midi_to_note(midinote):
+    """
+    converts a midi note to standard note notation
+
+    :param midinote: midi note number
+    :return: note in standard notation
+    """
+    return note_list[midinote % 12]
 
 
 def get_root(notes):
@@ -31,6 +35,8 @@ def harmonic_distance(root, semitone_sequence, notes):
     # step2: check the how many note are in the scale and how many not, and assign a distance to each
     pass
 
+def
+
 
 class Improvisor:
     def __init__(self):
@@ -38,7 +44,7 @@ class Improvisor:
         self.currentMode = {'root': 'C', 'semitone_sequence_index': 0, 'mode_index': 0}
 
     def push_notes(self, new_notes):
-        notes_and_probability = [{'midi': note, 'probability': 0} for note in new_notes]
+        notes_and_probability = [{'midinote': note, 'probability': 0} for note in new_notes]
         self.noteQueue.append(notes_and_probability)
 
     def next_mode(self):
