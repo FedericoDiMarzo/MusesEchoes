@@ -28,6 +28,11 @@ def midi_to_note(midinote):
 
 
 def get_root(notes):
+    """
+
+    :param notes: notes in standard notation
+    :return: single note in standard notation
+    """
     # TODO: extract root from most frequent note
     pass
 
@@ -47,10 +52,8 @@ def get_all_modes(root):
     return modes_note_std
 
 
-def harmonic_distance(root, notes_std):
+def harmonic_distances(modes_note_std, notes_std):
     # TODO: implementation
-    # step1: extract all the possible modes from the root
-
     # step2: check the how many note are in the scale and how many not, and assign a distance to each
     pass
 
@@ -67,7 +70,7 @@ class Improvisor:
     def next_mode(self):
         notes = [note['midi'] for note in self.noteQueue]
         root = get_root(notes)
-        modes_distance = harmonic_distance(root, notes)
+        modes_distance = harmonic_distances(root, notes)
         semitone_sequences_index = modes_distance.index(min(modes_distance))
         tmp = modes_distance[semitone_sequences_index]  # sequence with the lowest distance
         mode_index = tmp.index(min(tmp))
