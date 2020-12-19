@@ -53,3 +53,4 @@ class Sequencer:
     def close(self):
         print('sequencer closed')
         self.done = True
+

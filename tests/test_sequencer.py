@@ -23,5 +23,3 @@ if __name__ == '__main__':
 
     sequencer.close()
     audio_stream.close()
-    while True:
-        pass

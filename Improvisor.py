@@ -11,6 +11,7 @@ the modes
 """
 semitone_sequences = [
     [2, 2, 1, 2, 2, 2, 1],  # TTSTTTS
+    [2, 2, 1, 2, 3, 2, 1],
 ]
 
 
@@ -46,4 +47,3 @@ class Improvisor:
         self.currentMode['root'] = root
         self.currentMode['semitone_sequence_index'] = semitone_sequences_index
         self.currentMode['mode_index'] = mode_index
-        pass
