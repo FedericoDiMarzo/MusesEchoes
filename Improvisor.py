@@ -1,8 +1,8 @@
 """
 dictionary used to connect note names to numbers
 """
-note_dict = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
-             'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11}
+notenum_dict = {'C': 0, 'C#': 1, 'D': 2, 'D#': 3, 'E': 4, 'F': 5,
+                'F#': 6, 'G': 7, 'G#': 8, 'A': 9, 'A#': 10, 'B': 11}
 
 """
 this data structure contains all the
@@ -13,6 +13,11 @@ semitone_sequences = [
     [2, 2, 1, 2, 2, 2, 1],  # TTSTTTS
     [2, 2, 1, 2, 3, 2, 1],
 ]
+
+
+def midi_to_notenum(midinote):
+    notenum = midinote%12
+    return notenum
 
 
 def get_root(notes):
