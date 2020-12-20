@@ -99,7 +99,7 @@ class HarmonicState:
         while len(self.midiNoteBuffer) > self.bufferSize:
             self.midiNoteBuffer.pop(0)  # removing old notes
 
-    def next_mode(self):
+    def change_mode(self):
         notes_std = [midi_to_std(midi_msg.note) for midi_msg in self.midiNoteBuffer]  # TODO: test it
         root = get_root(notes_std)
         modes_affinities = harmonic_affinities(root, notes_std)
