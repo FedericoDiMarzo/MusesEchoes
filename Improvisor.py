@@ -29,12 +29,12 @@ def midi_to_note(midinote):
 
 def get_root(notes):
     """
-
+    return the most common value in the list of notes
     :param notes: notes in standard notation
     :return: single note in standard notation
     """
-    # TODO: extract root from most frequent note
-    pass
+    # TODO : when 2 notes are present the same number of times
+    return max(set(notes), key=notes.count)
 
 
 def get_all_modes(root):
