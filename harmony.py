@@ -17,14 +17,25 @@ mode_signatures = [
 ]
 
 
-def midi_to_std(midinote):
+def midi_to_std(midi_note):
     """
     converts a midi note to standard note notation
 
-    :param midinote: midi note number
+    :param midi_note: midi note number
     :return: note in standard notation
     """
-    return note_std_list[midinote % 12]
+    return note_std_list[midi_note % 12]
+
+
+def std_to_midi(note_std):
+    """
+    converts a note in std notation to a midi note
+    in the 4th octave
+
+    :param note_std: note in standard notation
+    :return: midi note number
+    """
+    return note_std_list.index(note_std) + 60
 
 
 def get_root(notes):
@@ -110,3 +121,5 @@ class HarmonicState:
         self.currentMode['root'] = root
         self.currentMode['mode_signature_index'] = mode_signature_index
         self.currentMode['mode_index'] = mode_index
+
+        return self.currentMode

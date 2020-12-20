@@ -1,10 +1,16 @@
 import mido
 import sys
 import harmony
-from sequencer import Sequencer
-
+from sequencer import Sequencer, test_tracks
 
 midi_in_buffer_size = 8  # notes to receive before a mode switch
+
+
+def setup_tracks(sequencer):
+    for key, value in test_tracks.items():
+        sequencer.add_track(key)
+        sequencer.set_pattern(key, value)
+
 
 if __name__ == '__main__':
     # command line feedback for users
@@ -32,6 +38,10 @@ if __name__ == '__main__':
 
     # setting up midi out
     sequencer = Sequencer(midi_out)
+    setup_tracks(sequencer)
+    sequencer.set_bpm(50)
+    sequencer.change_mode(harmonicState.currentMode)
+    sequencer.play()
 
     # setting up midi in
     midi_in_buffer = []
@@ -43,8 +53,9 @@ if __name__ == '__main__':
                 print(midi_msg)
             if len(midi_in_buffer) > midi_in_buffer_size:
                 harmonicState.push_notes(midi_in_buffer)
-                harmonicState.change_mode()
+                current_mode = harmonicState.change_mode()
                 midi_in_buffer = []
+                sequencer.change_mode(current_mode)
 
                 # logging mode status
                 print('current mode',
