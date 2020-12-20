@@ -1,5 +1,6 @@
-from harmony import get_all_modes, note_std_list, read_midi
+from harmony import get_all_modes, note_std_list, harmonic_affinities, get_root
 
+# test for mode generation
 if __name__ == '__main__':
     for note in note_std_list:
         print("modes of " + note + ":")
@@ -11,5 +12,3 @@ if __name__ == '__main__':
                 print(m)
             print('\n')
         print('\n\n')
-
-    read_midi('../media/midi/midi1.mid')

@@ -1,5 +1,5 @@
 import numpy as np
-import mido
+from collections import Counter
 
 """
 list of notes in standard notation
@@ -67,8 +67,25 @@ modes_dict = {root: get_all_modes(root) for root in note_std_list}
 
 def harmonic_affinities(modes, notes_std):
     # returns a multi dim list of size [len(mode_signatures)x7]
-    # TODO: implement it
-    pass
+    positive_weights = [0.3, 0.06, 0.08, 0.08, 0.24, 0.16, 0.08]
+    negative_weight = 0.2
+    input_notes_len = len(notes_std)
+    counter = Counter(notes_std)
+    affinities = []
+    for i in range(len(mode_signatures)):
+        affinities.append([])
+        for j in range(7):
+            curr_mode = modes[i][j]  # list of 7 notes
+            aff = 0
+            for k in range(7):
+                # calculating the positive weights
+                aff = aff + counter[curr_mode[k]] * positive_weights[k]
+            not_in_the_mode = [note for note in notes_std if note not in curr_mode]
+            aff = aff - len(not_in_the_mode) * negative_weight
+            aff = aff / input_notes_len
+            affinities[i].append(aff)
+
+    return affinities
 
 
 class HarmonicState:
