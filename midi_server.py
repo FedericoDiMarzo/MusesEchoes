@@ -1,6 +1,8 @@
 import mido
 import sys
 import harmony
+from sequencer import Sequencer
+
 
 midi_in_buffer_size = 8  # notes to receive before a mode switch
 
@@ -27,6 +29,9 @@ if __name__ == '__main__':
 
     # initializing harmonic state
     harmonicState = harmony.HarmonicState()
+
+    # setting up midi out
+    sequencer = Sequencer(midi_out)
 
     # setting up midi in
     midi_in_buffer = []
