@@ -6,7 +6,7 @@ import sys
 import time
 
 
-class AudioStream(object):
+class AudioSource(object):
     """
     Stream of audio, implemented with pyaudio
     """
