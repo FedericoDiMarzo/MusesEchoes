@@ -3,6 +3,9 @@ import numpy as np
 from harmony import mode_signatures, std_to_midi
 import mido
 import sys
+from pythonosc.osc_server import BlockingOSCUDPServer, Dispatcher
+from threading import Thread, Lock
+import json
 
 test_tracks = {
     1: (1, 0),
@@ -10,6 +13,9 @@ test_tracks = {
     3: (5, 3),
 }
 
+ip = "127.0.0.1"
+port = 1337
+sequencer = None
 
 def get_scale_from_mode(mode_signature, mode_index):
     rolled_mode_signature = list(np.roll(mode_signature, -mode_index))
@@ -24,7 +30,7 @@ class Sequencer:
     def __init__(self, midi_out):
         braid.midi_out = midi_out
         self.tracks = {}
-        braid.log_midi(True)
+        # braid.log_midi(True)
 
     def set_bpm(self, bpm):
         print('bpm changed: {}'.format(bpm))
@@ -43,15 +49,36 @@ class Sequencer:
         self.tracks[track_number].pattern = pattern
 
     def play(self):
-        for t in self.tracks.values():
-            t.start()
         braid.play()
 
 
-def setup_tracks(sequencer):
+def setup_tracks(seq):
     for key, value in test_tracks.items():
-        sequencer.add_track(key)
-        sequencer.set_pattern(key, value)
+        seq.add_track(key)
+        seq.set_pattern(key, value)
+
+
+def osc_server_setup():
+    print('OSC server running')
+    dispatcher = Dispatcher()
+    dispatcher.map("/sequencer/*", osc_handler)
+    server = BlockingOSCUDPServer((ip, port), dispatcher)
+    server.serve_forever()  # Blocks forever
+
+
+def osc_handler(address, *args):
+    # TODO: check for possible concurrency issues
+    mode = json.loads(args[0])
+    print('OSC address: {}'.format(address))
+    print('current mode',
+          'root: {}'.format(mode['root']),
+          'mode_signature_index: {}'.format(mode['mode_signature_index']),
+          'mode_index: {}'.format(mode['mode_index']),
+          '',
+          sep='\n')
+    sequencer.change_mode(mode)
+
+
 
 
 if __name__ == '__main__':
@@ -63,8 +90,14 @@ if __name__ == '__main__':
               sep='\n')
         exit(-1)
 
+    # OSC
+    osc_thread = Thread(target=osc_server_setup)
+    osc_thread.start()
+
     # setting up midi out
     midi_out = int(sys.argv[1])
+
+    # setting up the sequencer
     sequencer = Sequencer(midi_out)
     setup_tracks(sequencer)
     sequencer.set_bpm(50)
