@@ -21,6 +21,7 @@ if __name__ == '__main__':
 
     print('selected midi input: {}'.format(midi_input_names[midi_in]),
           'selected midi output: {}'.format(midi_output_names[midi_out]),
+          '',
           sep='\n')
     # --------------------------------------------
 
@@ -29,9 +30,12 @@ if __name__ == '__main__':
 
     # setting up midi in
     midi_in_buffer = []
+
     with mido.open_input(midi_input_names[midi_in]) as midi_in_port:
         for midi_msg in midi_in_port:
-            midi_in_buffer.append(midi_msg)
+            if midi_msg.type == 'note_on':
+                midi_in_buffer.append(midi_msg)
+                print(midi_msg)
             if len(midi_in_buffer) > midi_in_buffer_size:
                 harmonicState.push_notes(midi_in_buffer)
                 harmonicState.change_mode()
@@ -41,6 +45,6 @@ if __name__ == '__main__':
                 print('current mode',
                       'root: {}'.format(harmonicState.currentMode['root']),
                       'mode_signature_index: {}'.format(harmonicState.currentMode['mode_signature_index']),
-                      'mode_index: {}'.format(harmonicState.currentMode['root']),
+                      'mode_index: {}'.format(harmonicState.currentMode['mode_index']),
                       '\n',
                       sep='\n')
