@@ -112,7 +112,7 @@ def osc_handler(address, *args):
     sequencer.change_mode(mode)
     sequencer.calculate_complexity(notes_per_second)
     for i in range(len(sequencer.tracks)):
-        sequencer.set_pattern(i)
+        sequencer.set_pattern(i+1)
 
 
 if __name__ == '__main__':
