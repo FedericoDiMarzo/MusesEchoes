@@ -3,10 +3,12 @@ import sys
 import harmony
 from pythonosc.udp_client import SimpleUDPClient
 import json
+import time
 
 midi_in_buffer_size = 8  # notes to receive before a mode switch
 ip = "127.0.0.1"
 port = 1337
+notes_per_second = 0
 
 if __name__ == '__main__':
     # command line feedback for users
@@ -36,6 +38,7 @@ if __name__ == '__main__':
 
     # receiving midi messages
     with mido.open_input(midi_input_names[midi_in]) as midi_in_port:
+        timer_start = time.time()  # starting a timer
         for midi_msg in midi_in_port:
             if midi_msg.type == 'note_on':
                 midi_in_buffer.append(midi_msg)
@@ -44,6 +47,8 @@ if __name__ == '__main__':
                 harmonicState.push_notes(midi_in_buffer)
                 current_mode = harmonicState.change_mode()
                 midi_in_buffer = []
+                notes_per_second = midi_in_buffer_size / (time.time() - timer_start)
+                timer_start = time.time()  # resetting the timer
 
                 # sending an OSC message to the sequencer
                 # script containing the mode
@@ -54,5 +59,6 @@ if __name__ == '__main__':
                       'root: {}'.format(harmonicState.currentMode['root']),
                       'mode_signature_index: {}'.format(harmonicState.currentMode['mode_signature_index']),
                       'mode_index: {}'.format(harmonicState.currentMode['mode_index']),
+                      'notes_per_second: {}'.format(notes_per_second),
                       '',
                       sep='\n')

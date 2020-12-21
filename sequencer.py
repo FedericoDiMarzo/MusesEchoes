@@ -4,7 +4,7 @@ from harmony import mode_signatures, std_to_midi
 import mido
 import sys
 from pythonosc.osc_server import BlockingOSCUDPServer, Dispatcher
-from threading import Thread, Lock
+from threading import Thread
 import json
 
 test_tracks = {
@@ -16,6 +16,7 @@ test_tracks = {
 ip = "127.0.0.1"
 port = 1337
 sequencer = None
+
 
 def get_scale_from_mode(mode_signature, mode_index):
     rolled_mode_signature = list(np.roll(mode_signature, -mode_index))
@@ -77,8 +78,6 @@ def osc_handler(address, *args):
           '',
           sep='\n')
     sequencer.change_mode(mode)
-
-
 
 
 if __name__ == '__main__':

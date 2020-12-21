@@ -102,7 +102,7 @@ def harmonic_affinities(modes, notes_std):
 class HarmonicState:
     def __init__(self):
         self.midiNoteBuffer = []
-        self.bufferSize = 8  # TODO: test this value
+        self.bufferSize = 16  # TODO: test this value
         self.currentMode = {'root': 'C', 'mode_signature_index': 0, 'mode_index': 0}
 
     def push_notes(self, midi_notes):
@@ -111,7 +111,7 @@ class HarmonicState:
             self.midiNoteBuffer.pop(0)  # removing old notes
 
     def change_mode(self):
-        notes_std = [midi_to_std(midi_msg.note) for midi_msg in self.midiNoteBuffer]  # TODO: test it
+        notes_std = [midi_to_std(midi_msg.note) for midi_msg in self.midiNoteBuffer]
         root = get_root(notes_std)
         modes_affinities = harmonic_affinities(modes_dict[root], notes_std)
         mode_signature_index = modes_affinities.index(max(modes_affinities))
