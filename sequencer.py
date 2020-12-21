@@ -70,11 +70,13 @@ def osc_server_setup():
 def osc_handler(address, *args):
     # TODO: check for possible concurrency issues
     mode = json.loads(args[0])
+    notes_per_second = float(args[1])
     print('OSC address: {}'.format(address))
     print('current mode',
           'root: {}'.format(mode['root']),
           'mode_signature_index: {}'.format(mode['mode_signature_index']),
           'mode_index: {}'.format(mode['mode_index']),
+          'notes_per_second: {}'.format(notes_per_second),
           '',
           sep='\n')
     sequencer.change_mode(mode)
