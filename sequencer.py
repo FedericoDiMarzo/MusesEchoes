@@ -7,12 +7,6 @@ from pythonosc.osc_server import BlockingOSCUDPServer, Dispatcher
 from threading import Thread
 import json
 
-test_tracks = {
-    1: (1, 0),
-    2: (3, 5, 3, 7),
-    3: (5, 3),
-}
-
 ip = "127.0.0.1"
 port = 1337
 sequencer = None
@@ -30,12 +24,19 @@ def get_scale_from_mode(mode_signature, mode_index):
 class Sequencer:
     def __init__(self, midi_out):
         braid.midi_out = midi_out
+        self.complexity = 0  # 0 simple, 1 complex
         self.tracks = {}
+        self.scores = {}
         # braid.log_midi(True)
 
     def set_bpm(self, bpm):
         print('bpm changed: {}'.format(bpm))
         braid.tempo(bpm)
+
+    def calculate_complexity(self, notes_per_seconds):
+        max_notes_per_seconds = 10  # TODO: fine tune the value
+        self.complexity = min(max_notes_per_seconds, notes_per_seconds) / max_notes_per_seconds
+        print('sequencer complexity: {}'.format(self.complexity))
 
     def change_mode(self, mode):
         mode_sig = mode_signatures[mode['mode_signature_index']]
@@ -46,17 +47,46 @@ class Sequencer:
     def add_track(self, midi_channel):
         self.tracks[midi_channel] = braid.Thread(midi_channel)
 
-    def set_pattern(self, track_number, pattern):
-        self.tracks[track_number].pattern = pattern
+    def set_score(self, track_number, score):
+        self.scores[track_number] = score
+
+    def set_pattern(self, track_number):
+        simple_pattern = self.scores[track_number]['simple']
+        complex_pattern = self.scores[track_number]['complex']
+        blended_pattern = braid.blend(simple_pattern, complex_pattern, self.complexity)
+        print(blended_pattern)  # TODO: remove print
+        self.tracks[track_number].pattern = blended_pattern
 
     def play(self):
         braid.play()
 
 
 def setup_tracks(seq):
-    for key, value in test_tracks.items():
-        seq.add_track(key)
-        seq.set_pattern(key, value)
+    seq.add_track(1)
+    seq.add_track(2)
+    seq.add_track(3)
+
+    score1 = {
+        'simple': (1, 0, 0, braid.Z),
+        'complex': (1, 0, 0, braid.Z)
+    }
+
+    score2 = {
+        'simple': (3, 0, 5, 0),
+        'complex': ([3, 6], [5, [7, 3]], [5, 4], [1, [5, 2]])
+    }
+
+    score3 = {
+        'simple': (0, 5, 1, 0),
+        'complex': ([4, [5, 4]], [[3, 5], 3], [[5, 5], 3], [5, [7, 4]])
+    }
+
+    seq.set_score(1, score1)
+    seq.set_score(2, score2)
+    seq.set_score(3, score3)
+    seq.set_pattern(1)
+    seq.set_pattern(2)
+    seq.set_pattern(3)
 
 
 def osc_server_setup():
@@ -80,6 +110,9 @@ def osc_handler(address, *args):
           '',
           sep='\n')
     sequencer.change_mode(mode)
+    sequencer.calculate_complexity(notes_per_second)
+    for i in range(len(sequencer.tracks)):
+        sequencer.set_pattern(i)
 
 
 if __name__ == '__main__':

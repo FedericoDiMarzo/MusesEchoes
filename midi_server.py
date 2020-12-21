@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
                 # sending an OSC message to the sequencer
                 # script containing the mode
-                osc_client.send_message('/sequencer/mode', [json.dumps(current_mode), notes_per_second])
+                osc_client.send_message('/sequencer/settings', [json.dumps(current_mode), notes_per_second])
 
                 # logging mode status
                 print('current mode',
