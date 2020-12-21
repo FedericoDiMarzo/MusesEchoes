@@ -134,7 +134,6 @@ if __name__ == '__main__':
     # setting up the sequencer
     sequencer = Sequencer(midi_out)
     setup_tracks(sequencer)
-
     sequencer.set_bpm(80)
     sequencer.change_mode({'root': 'C', 'mode_signature_index': 0, 'mode_index': 0})
     sequencer.play()
