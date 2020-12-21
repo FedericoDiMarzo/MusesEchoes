@@ -72,13 +72,13 @@ def setup_tracks(seq):
     }
 
     score2 = {
-        'simple': (3, 0, 5, 0),
-        'complex': ([3, 6], [5, [7, 3]], [5, 4], [1, [5, 2]])
+        'simple': ([3, 5], 0, [5, 3], 0),
+        'complex': ([5, 7], [5, [5, 3]], [5, 1], [1, [5, 1]])
     }
 
     score3 = {
         'simple': (0, 5, 1, 0),
-        'complex': ([4, [5, 4]], [[3, 5], 3], [[5, 5], 3], [5, [7, 4]])
+        'complex': ([3, [5, 3]], [[3, 7], 3], [[5, 5, 5], 3], [5, [7, 5, 3, 5], [7, 5]])
     }
 
     seq.set_score(1, score1)
@@ -134,6 +134,6 @@ if __name__ == '__main__':
     # setting up the sequencer
     sequencer = Sequencer(midi_out)
     setup_tracks(sequencer)
-    sequencer.set_bpm(50)
+    sequencer.set_bpm(80)
     sequencer.change_mode({'root': 'C', 'mode_signature_index': 0, 'mode_index': 0})
     sequencer.play()
