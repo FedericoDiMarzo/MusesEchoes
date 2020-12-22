@@ -99,6 +99,7 @@ def osc_server_setup():
 
 def osc_handler(address, *args):
     # TODO: check for possible concurrency issues
+    # TODO: separate OSC handlers
     mode = json.loads(args[0])
     notes_per_second = float(args[1])
     print('OSC address: {}'.format(address))

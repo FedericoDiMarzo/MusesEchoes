@@ -4,11 +4,13 @@ import harmony
 from pythonosc.udp_client import SimpleUDPClient
 import json
 import time
+import random
 
 midi_in_buffer_size = 8  # notes to receive before a mode switch
 ip = "127.0.0.1"
 port = 1337
 notes_per_second = 0
+osc_trigger = 0
 
 if __name__ == '__main__':
     # command line feedback for users
@@ -30,6 +32,7 @@ if __name__ == '__main__':
     # setting up OSC
     osc_client = SimpleUDPClient(ip, port)  # Create client
 
+
     # initializing harmonic state
     harmonicState = harmony.HarmonicState()
 
@@ -50,9 +53,10 @@ if __name__ == '__main__':
                 notes_per_second = midi_in_buffer_size / (time.time() - timer_start)
                 timer_start = time.time()  # resetting the timer
 
-                # sending an OSC message to the sequencer
+                # sending an OSC message to the sequencer and the visuals
                 # script containing the mode
                 osc_client.send_message('/sequencer/settings', [json.dumps(current_mode), notes_per_second])
+                osc_client.send_message('/visuals/mode', random.randint(3, 7))  # TODO: send a proper message
 
                 # logging mode status
                 print('current mode',
