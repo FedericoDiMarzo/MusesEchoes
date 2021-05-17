@@ -26,9 +26,9 @@ class MidiServer:
 
         self.harmonicState = melodically.HarmonicState(buffer_size)
 
-        self.melodyMarkovChain = markov_chains.AbstractMelodyMarkovChain()
+        self.melodyMarkovChain = markov_chains.AbstractMelodyMarkovChain(order=3)
 
-        self.durations = melodically.get_durations(74)
+        self.durations = melodically.get_durations(74)  # TODO: bpm
 
         self.midiNoteQueue = melodically.MidiNoteQueue()
 
@@ -43,7 +43,7 @@ class MidiServer:
                     self.midiBuffer.append(midi_msg)
                     self.midiNoteQueue.push(melodically.get_timestamp_msg(midi_msg.type, midi_msg.note))
                     print(midi_msg)
-                if len(self.midiBuffer) > self.bufferSize:
+                if len(self.midiBuffer) >= self.bufferSize:
                     # updating the harmonic state
                     new_notes = [melodically.midi_to_std(msg.note) for msg in self.midiBuffer if msg.type == 'note_on']
                     self.harmonicState.push_notes(new_notes)
@@ -51,12 +51,14 @@ class MidiServer:
                     self.midiBuffer = []
 
                     # parsing the input melody
+                    # TODO: Andre debugging
                     current_chord = 'CM'  # TODO: use the markov chain to change chords
                     parsed_melody = melodically.parse_melody(self.midiNoteQueue, current_chord, self.durations)
+                    self.midiNoteQueue.clear()
 
                     # markov chain for the melody
                     self.melodyMarkovChain.learn_melody(parsed_melody)
-                    generated_melody = self.melodyMarkovChain.generate_new_melody(8)
+                    generated_melody = self.melodyMarkovChain.generate_new_melody(8)  # TODO: sync with the sequencer
 
                     # sending an OSC message to the sequencer and the visuals
                     # script containing the mode
@@ -85,5 +87,6 @@ if __name__ == '__main__':
           '',
           sep='\n')
     # --------------------------------------------
+
     midiServer = MidiServer(midi_input_names[midi_index], buffer_size=16)
     midiServer.listen_midi()
