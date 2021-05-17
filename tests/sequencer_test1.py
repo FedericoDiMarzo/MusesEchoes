@@ -1,5 +1,5 @@
 from sequencer import get_scale_from_mode
-from harmony import mode_signatures, note_std_list
+from harmony import mode_signatures
 
 if __name__ == '__main__':
 

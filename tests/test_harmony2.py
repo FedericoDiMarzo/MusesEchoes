@@ -1,4 +1,4 @@
-from harmony import get_all_modes, note_std_list, harmonic_affinities, get_root
+from harmony import get_all_modes, harmonic_affinities, get_root
 
 # test for harmonic_affinities
 if __name__ == '__main__':
