@@ -41,7 +41,7 @@ class MidiServer:
             for midi_msg in midi_in_port:
                 if midi_msg.type == 'note_on' or 'note_off':
                     self.midiBuffer.append(midi_msg)
-                    self.midiNoteQueue.push(melodically.get_timestamp_msg(midi_msg.type, midi_msg.note))
+                    self.midiNoteQueue.push(midi_msg.type, midi_msg.note)
                     print(midi_msg)
                 if len(self.midiBuffer) >= self.bufferSize:
                     # updating the harmonic state
