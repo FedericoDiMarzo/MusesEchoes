@@ -1,6 +1,8 @@
 import numpy as np
 from collections import Counter
 
+# TODO: remove this script
+
 """
 list of notes in standard notation
 """
