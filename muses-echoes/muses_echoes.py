@@ -160,8 +160,7 @@ class MuseEchoes:
         current_chord = 'CM'  # TODO: use the beatles markov chain to change the chord
         note_input_sequence = []
         rhythmic_input_sequence = []
-        note_generated_sequence_length = 10  # TODO: fine tune the value
-        rhythmic_generated_sequence_length = 10  # TODO: fine tune the value
+        generated_sequence_max_length = 8  # TODO: fine tune the value
         note_generated_sequence = []
         rhythmic_generated_sequence = []
 
@@ -196,9 +195,10 @@ class MuseEchoes:
             if rhythmic_input_sequence:
                 rhythm_markov_chain.learn(rhythmic_input_sequence)
 
-            # generating the new sequences
-            note_generated_sequence = notes_markov_chain.generate(note_generated_sequence_length)
-            rhythmic_generated_sequence = rhythm_markov_chain.generate(rhythmic_generated_sequence_length)
+            # generating the new sequences that fits in one measure
+            rhythmic_generated_sequence = rhythm_markov_chain.generate(generated_sequence_max_length)
+            rhythmic_generated_sequence = melodically.clip_rhythmic_sequence(rhythmic_input_sequence, 1)
+            note_generated_sequence = notes_markov_chain.generate(len(rhythmic_generated_sequence))
             print(note_generated_sequence)
             print(rhythmic_generated_sequence)
             print()
