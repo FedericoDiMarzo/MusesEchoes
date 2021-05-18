@@ -1,12 +1,13 @@
 import mido
 import sys
 import melodically
-import markov_chains
+import markov_chain
 import threading
 from pythonosc.udp_client import SimpleUDPClient
 import json
 import time
 import random
+from sequencer import Sequencer
 
 """
 Change these variables to easily modify the
@@ -21,7 +22,8 @@ _melody_octave_range = (4, 6)
 
 
 class MuseEchoes:
-    def __init__(self, midi_in_port, midi_buffer_size=10,
+    def __init__(self, midi_in_port, midi_out_port,
+                 midi_buffer_size=10,
                  osc_ip="127.0.0.1", osc_port=1337,
                  bpm=74, measures_for_scale_change=4,
                  melody_octave_range=(4, 6)):
@@ -32,14 +34,19 @@ class MuseEchoes:
         # event triggered when a scale must be changed
         self.changeScaleEvent = threading.Event()
 
+        # event triggered when a scale change is completed
+        self.changeScaleDoneEvent = threading.Event()
+        self.changeScaleDoneEvent.set()
+
         # event triggered when the sequencer should execute a new melody
         self.sequencerEvent = threading.Event()
 
         # event triggered when the midi buffer is full
         self.bufferFullEvent = threading.Event()
 
-        # name of the midi in port
+        # name of the midi ports
         self.midiInPort = midi_in_port
+        self.midiOutPort = midi_out_port
 
         # ip for the osc protocol
         self.oscIp = osc_ip
@@ -79,7 +86,11 @@ class MuseEchoes:
         # number of measures for triggering a scale change
         self.measuresForScaleChange = measures_for_scale_change
 
+        # range of octaves for the generated melody
         self.melody_octave_range = melody_octave_range
+
+        # midi sequencer
+        self.sequencer = Sequencer(self.midiOutPort, bpm=self.bpm)
 
     def start(self):
         """
@@ -113,9 +124,6 @@ class MuseEchoes:
             time.sleep(self.durations['1'])
             print('[measure {}/{}]'.format(measure_counter + 1, self.measuresForScaleChange))
 
-            # triggering the sequencer and the chords
-            self.sequencerEvent.set()
-
             # increasing the measure count
             measure_counter = measure_counter + 1
 
@@ -124,8 +132,14 @@ class MuseEchoes:
                 # triggering a scale change
                 self.changeScaleEvent.set()
 
+                # synchronization between play_midi and change_scale threads
+                self.changeScaleDoneEvent.clear()
+
                 # resetting the counter
                 measure_counter = 0
+
+            # triggering the sequencer and the chords
+            self.sequencerEvent.set()
 
     def listen_midi(self):
         """
@@ -162,15 +176,16 @@ class MuseEchoes:
                         self.bufferFullEvent.set()
 
     def play_midi(self):
-        notes_markov_chain = markov_chains.MarkovChain()
-        rhythm_markov_chain = markov_chains.MarkovChain()
+        notes_markov_chain = markov_chain.MarkovChain()
+        rhythm_markov_chain = markov_chain.MarkovChain()
         current_chord = 'CM'  # TODO: use the beatles markov chain to change the chord
         note_input_sequence = []
         rhythmic_input_sequence = []
-        generated_sequence_max_length = 8  # TODO: fine tune the value
+        generated_sequence_max_length = 10  # TODO: fine tune the value
         note_generated_sequence = []
         midi_generated_sequence = []
-        rhythmic_generated_sequence = []
+        rhythm_generated_sequence = []
+        sequencer_input = []
 
         # the first training is done here, to avoid empty markov chains
         self.bufferFullEvent.wait()
@@ -190,9 +205,11 @@ class MuseEchoes:
             self.sequencerEvent.wait()
             self.sequencerEvent.clear()
 
+            # synchronization with change_scale thread
+            self.changeScaleDoneEvent.wait()
+
             # TODO: change the chord
             # TODO: play the chord
-            # TODO: synchronize with the scale change
 
             # parsing the rhythm and the notes
             rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
@@ -204,23 +221,28 @@ class MuseEchoes:
                 rhythm_markov_chain.learn(rhythmic_input_sequence)
 
             # generating the new sequences that fits in one measure
-            rhythmic_generated_sequence = rhythm_markov_chain.generate(generated_sequence_max_length)
-            # TODO: debug
-            rhythmic_generated_sequence = melodically.clip_rhythmic_sequence(rhythmic_input_sequence, 1)
-            note_generated_sequence = notes_markov_chain.generate(len(rhythmic_generated_sequence))
+            rhythm_generated_sequence = rhythm_markov_chain.generate(generated_sequence_max_length)
+            rhythm_generated_sequence = melodically.clip_rhythmic_sequence(rhythmic_input_sequence, 1)
+            note_generated_sequence = notes_markov_chain.generate(len(rhythm_generated_sequence))
             midi_generated_sequence = self.generate_midi_sequence(note_generated_sequence, current_chord)
+
+            # playing the sequencer
+            if rhythm_generated_sequence:
+                sequencer_input = [{'note': x, 'duration': y} for x, y in
+                                   zip(midi_generated_sequence, rhythm_generated_sequence)]
+            self.sequencer.play_sequence(sequencer_input)
+
             print(note_generated_sequence)
             print(midi_generated_sequence)
-            print(rhythmic_generated_sequence)
+            print(rhythm_generated_sequence)
             print()
-
-            # TODO: play the sequence with the sequencer
 
     def change_scale(self):
         while True:
             # waiting for the scale change event
             self.changeScaleEvent.wait()
             self.changeScaleEvent.clear()
+
             # updating the scale
             with self.lock:  # critical section
                 self.harmonicState.push_notes(self.noteBuffer)
@@ -228,6 +250,9 @@ class MuseEchoes:
                 self.currentScale = self.harmonicState.get_mode_notes()
                 print(self.currentScale)
             # end of critical section
+
+            # synchronization with play_midi thread
+            self.changeScaleDoneEvent.set()
 
     def parse_midi_notes(self, current_chord):
         """
@@ -271,15 +296,19 @@ if __name__ == '__main__':
     # command line feedback for the users
     # =========================================
     midi_input_names = mido.get_input_names()
+    midi_output_names = mido.get_output_names()
 
-    if len(sys.argv) <= 1:
-        print('usage: python -m midi_server.py midi_port\n',
-              'midi ports: {}'.format(midi_input_names),
+    if len(sys.argv) <= 2:
+        print('usage: python -m muses_echoes midi_in_port_index midi_out_port_index\n',
+              'midi in ports: {}'.format(midi_input_names),
+              'midi out ports: {}'.format(midi_output_names),
               sep='\n')
         exit(-1)
 
-    midi_index = int(sys.argv[1])
-    print('selected midi input: {}'.format(midi_input_names[midi_index]),
+    midi_in_index = int(sys.argv[1])
+    midi_out_index = int(sys.argv[2])
+    print('selected midi input: {}'.format(midi_input_names[midi_in_index]),
+          'selected midi output: {}'.format(midi_output_names[midi_out_index]),
           '',
           sep='\n')
     # =========================================
@@ -287,7 +316,8 @@ if __name__ == '__main__':
 
     # creating and starting the multi-threaded application
     midiServer = MuseEchoes(
-        midi_in_port=midi_input_names[midi_index],
+        midi_in_port=midi_input_names[midi_in_index],
+        midi_out_port=midi_output_names[midi_out_index],
         osc_ip=_osc_ip,
         osc_port=_osc_port,
         midi_buffer_size=_midi_buffer_size,
