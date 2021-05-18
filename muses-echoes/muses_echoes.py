@@ -17,12 +17,14 @@ _osc_port = 1337
 _midi_buffer_size = 10
 _bpm = 74
 _measures_for_scale_change = 4
+_melody_octave_range = (4, 6)
 
 
 class MuseEchoes:
     def __init__(self, midi_in_port, midi_buffer_size=10,
                  osc_ip="127.0.0.1", osc_port=1337,
-                 bpm=74, measures_for_scale_change=4):
+                 bpm=74, measures_for_scale_change=4,
+                 melody_octave_range=(4, 6)):
 
         # lock used to protect the critical sections
         self.lock = threading.Lock()
@@ -76,6 +78,8 @@ class MuseEchoes:
 
         # number of measures for triggering a scale change
         self.measuresForScaleChange = measures_for_scale_change
+
+        self.melody_octave_range = melody_octave_range
 
     def start(self):
         """
@@ -165,6 +169,7 @@ class MuseEchoes:
         rhythmic_input_sequence = []
         generated_sequence_max_length = 8  # TODO: fine tune the value
         note_generated_sequence = []
+        midi_generated_sequence = []
         rhythmic_generated_sequence = []
 
         # the first training is done here, to avoid empty markov chains
@@ -203,7 +208,9 @@ class MuseEchoes:
             # TODO: debug
             rhythmic_generated_sequence = melodically.clip_rhythmic_sequence(rhythmic_input_sequence, 1)
             note_generated_sequence = notes_markov_chain.generate(len(rhythmic_generated_sequence))
+            midi_generated_sequence = self.generate_midi_sequence(note_generated_sequence, current_chord)
             print(note_generated_sequence)
+            print(midi_generated_sequence)
             print(rhythmic_generated_sequence)
             print()
 
@@ -239,9 +246,27 @@ class MuseEchoes:
         # end of the critical section
         return rhythmic_input_sequence, note_input_sequence
 
+    def generate_midi_sequence(self, note_sequence, chord):
+        c_tones = melodically.chord_tones[chord]['c']
+        l_tones = melodically.chord_tones[chord]['l']
+        notes_not_in_scale = list(set(melodically.musical_notes) - set(c_tones) - set(l_tones))
+        result = []
+        for note in note_sequence:
+            if note == 'c':
+                result.append(self.random_pick(c_tones))
+            elif note == 'l':
+                result.append(self.random_pick(l_tones))
+            else:
+                result.append(self.random_pick(notes_not_in_scale))
+
+        return result
+
+    def random_pick(self, sequence):
+        return melodically.std_to_midi(random.choice(sequence),
+                                       random.randint(self.melody_octave_range[0], self.melody_octave_range[1]))
+
 
 if __name__ == '__main__':
-
     # =========================================
     # command line feedback for the users
     # =========================================
@@ -254,7 +279,6 @@ if __name__ == '__main__':
         exit(-1)
 
     midi_index = int(sys.argv[1])
-
     print('selected midi input: {}'.format(midi_input_names[midi_index]),
           '',
           sep='\n')
@@ -269,5 +293,6 @@ if __name__ == '__main__':
         midi_buffer_size=_midi_buffer_size,
         bpm=_bpm,
         measures_for_scale_change=_measures_for_scale_change,
+        melody_octave_range=_melody_octave_range,
     )
     midiServer.start()
