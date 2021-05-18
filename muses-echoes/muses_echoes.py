@@ -69,8 +69,10 @@ class MuseEchoes:
         # dictionary containing the durations for each rhythmic figure
         self.durations = melodically.get_durations(self.bpm)
 
-        # removing the 16th triplets from the durations dictionary
+        # removing triplets from the durations dictionary
         del self.durations['16t']
+        del self.durations['8t']
+        del self.durations['4t']
 
         # number of measures for triggering a scale change
         self.measuresForScaleChange = measures_for_scale_change
@@ -87,7 +89,7 @@ class MuseEchoes:
         thread1.start()
         thread2.start()
         thread3.start()
-        # thread4.start()
+        thread4.start()
 
         # thread1.join()
         # thread2.join()
@@ -114,6 +116,7 @@ class MuseEchoes:
             measure_counter = measure_counter + 1
 
             if measure_counter >= self.measuresForScaleChange:
+                # TODO: change scale at measure 1 not 4
                 # triggering a scale change
                 self.changeScaleEvent.set()
 
@@ -168,10 +171,10 @@ class MuseEchoes:
         self.bufferFullEvent.wait()
         self.bufferFullEvent.clear()
 
-        # with self.lock:  # critical section
-        #     # the first scale is also set here
-        #     self.harmonicState.push_notes(self.noteBuffer)
-        # # end of critical section
+        with self.lock:  # critical section
+            # the first scale is also set here
+            self.harmonicState.push_notes(self.noteBuffer)
+        # end of critical section
 
         rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
         notes_markov_chain.learn(note_input_sequence)
@@ -197,13 +200,13 @@ class MuseEchoes:
 
             # generating the new sequences that fits in one measure
             rhythmic_generated_sequence = rhythm_markov_chain.generate(generated_sequence_max_length)
+            # TODO: debug
             rhythmic_generated_sequence = melodically.clip_rhythmic_sequence(rhythmic_input_sequence, 1)
             note_generated_sequence = notes_markov_chain.generate(len(rhythmic_generated_sequence))
             print(note_generated_sequence)
             print(rhythmic_generated_sequence)
             print()
 
-            # TODO: clear the sequence
             # TODO: play the sequence with the sequencer
 
     def change_scale(self):
