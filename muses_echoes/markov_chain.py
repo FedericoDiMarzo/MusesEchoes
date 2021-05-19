@@ -51,3 +51,4 @@ class MarkovChain:
 cwd = os.path.dirname(muses_echoes.__file__)
 binary_path = os.path.join(cwd, 'chords_markov_chain.bin')
 chord_markov_chain = pickle.load(open(binary_path, 'rb'))
+# TODO: increase probability for the V grade on the 4th chord

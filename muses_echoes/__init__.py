@@ -1,1 +1,0 @@
-# TODO: change mode if N x notes are detected
