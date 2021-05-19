@@ -20,6 +20,9 @@ _bpm = 74
 _measures_for_scale_change = 4
 _melody_octave_range = (4, 6)
 
+# degree to number mapping
+degrees = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
+
 
 class MuseEchoes:
     def __init__(self, midi_in_port, midi_out_port,
@@ -71,6 +74,9 @@ class MuseEchoes:
 
         # current modal scale
         self.currentScale = []
+
+        # current chord sequence
+        self.chordSequence = []
 
         # tempo in beats per minutes
         self.bpm = bpm
@@ -124,18 +130,16 @@ class MuseEchoes:
             time.sleep(self.durations['1'])
             print('[measure {}/{}]'.format(measure_counter + 1, self.measuresForScaleChange))
 
-            # increasing the measure count
-            measure_counter = measure_counter + 1
-
-            if measure_counter >= self.measuresForScaleChange:
-                # TODO: change scale at measure 1 not 4
+            if measure_counter == 0:
                 # triggering a scale change
                 self.changeScaleEvent.set()
 
                 # synchronization between play_midi and change_scale threads
                 self.changeScaleDoneEvent.clear()
 
-                # resetting the counter
+            # increasing the measure counter
+            measure_counter = measure_counter + 1
+            if measure_counter >= self.measuresForScaleChange:
                 measure_counter = 0
 
             # triggering the sequencer and the chords
@@ -186,10 +190,10 @@ class MuseEchoes:
         midi_generated_sequence = []
         rhythm_generated_sequence = []
         sequencer_input = []
+        measure_count = 0
 
         # the first training is done here, to avoid empty markov chains
         self.bufferFullEvent.wait()
-        self.bufferFullEvent.clear()
 
         with self.lock:  # critical section
             # the first scale is also set here
@@ -209,6 +213,9 @@ class MuseEchoes:
             self.changeScaleDoneEvent.wait()
 
             # TODO: change the chord
+            # with self.lock:
+            #     current_chord = self.degree_to_chord(self.chordSequence[measure_count])
+
             # TODO: play the chord
 
             # parsing the rhythm and the notes
@@ -237,18 +244,28 @@ class MuseEchoes:
             print(rhythm_generated_sequence)
             print()
 
+            measure_count = (measure_count + 1) % 4
+
     def change_scale(self):
+        # markov chain trained on The Beatles chord database
+        chords_markov_chain = markov_chain.chord_markov_chain
+
+        # waiting for the midiBuffer to be full
+        self.bufferFullEvent.wait()
+
         while True:
             # waiting for the scale change event
             self.changeScaleEvent.wait()
             self.changeScaleEvent.clear()
 
-            # updating the scale
+            # updating the scale and the chords
             with self.lock:  # critical section
+                self.chordSequence = chords_markov_chain.sample(4)
                 self.harmonicState.push_notes(self.noteBuffer)
                 self.noteBuffer = []
                 self.currentScale = self.harmonicState.get_mode_notes()
                 print(self.currentScale)
+                print(self.chordSequence)
             # end of critical section
 
             # synchronization with play_midi thread
@@ -289,6 +306,11 @@ class MuseEchoes:
     def random_pick(self, sequence):
         return melodically.std_to_midi(random.choice(sequence),
                                        random.randint(self.melody_octave_range[0], self.melody_octave_range[1]))
+
+    def degree_to_chord(self, degree):
+        degree_number = degrees.index(degree)
+        chord = self.currentScale[degree_number]
+        return chord
 
 
 if __name__ == '__main__':

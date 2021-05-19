@@ -25,10 +25,12 @@ class Sequencer:
             self.sequence = sequence
         # end of critical section
 
-        self.playEvent.set()
+        if sequence:
+            self.playEvent.set()
 
     def run(self):
         while True:
+            # TODO: bug the sequence loops even with the event lock
             self.playEvent.wait()
             self.playEvent.clear()
 

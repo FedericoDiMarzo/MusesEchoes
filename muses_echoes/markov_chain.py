@@ -1,4 +1,8 @@
 import pomegranate as pg
+import os
+import pickle
+import muses_echoes
+
 
 # prefixes = ['c', 'l', 'x', 'r']
 # suffixes = ['1', '2', '4', '4t', '4dot', '8', '8t', '16', '16t']
@@ -41,3 +45,9 @@ class MarkovChain:
         :return: list of symbols
         """
         return self.markovChain.sample(length)
+
+
+# getting the chord markov chain from the trained binary file
+cwd = os.path.dirname(muses_echoes.__file__)
+binary_path = os.path.join(cwd, 'chords_markov_chain.bin')
+chord_markov_chain = pickle.load(open(binary_path, 'rb'))
