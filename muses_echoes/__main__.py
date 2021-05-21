@@ -1,7 +1,7 @@
 # TODO: change mode if N x notes are detected
 import sys
 import mido
-from muses_echoes.application import MuseEchoes
+from muses_echoes.muses import MuseEchoes
 
 """
 Change these variables to easily modify the
