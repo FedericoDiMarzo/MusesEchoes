@@ -13,6 +13,31 @@ degrees = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII']
 
 
 class MuseEchoes:
+    """
+    This class implements the Muses' Echoes application.
+    After an object is created passing all the requested parameters to modify
+    the settings, the application can be started calling the start method.
+    The starting method will block the execution and spawn the threads needed
+    for the application to work. The fire_event method will than handle the
+    synchronization between the threads.
+
+    Muses' Echoes is an application that interacts with other
+    subsystem through the midi and osc protocols.
+    The midi setup is based on midi loop ports, that allow the communication
+    between the python interpreter and a midi host like a DAW.
+    A first midi port must be configured in the DAW to send midi notes to
+    Muses' Echoes, this port will capture the melodies from the users.
+    Two additional midi ports can be configured in the DAW to control
+    the sound generation of the melody and of the chords. Muses' Echoes
+    will change the midi channel depending on the modal scale, starting
+    from the Ionic mode (channel 1) to the Locrian mode (channel 7); this
+    mechanism can be used to vary the instruments in the DAW depending on the
+    channel (and thus on the mode), to variate the soundscape.
+    The modal variation is also sent through the osc protocol, in order to
+    control additional subsystem that could, for example, generate visual contents
+    based on the scale that is been playing.
+    """
+
     def __init__(self, midi_in_port,
                  midi_sequence_out_port, midi_chord_out_port,
                  midi_buffer_size=10,
@@ -96,22 +121,26 @@ class MuseEchoes:
 
     def start(self):
         """
-        Starts all the threads of the application and joins them.
+        Starts all the threads of the application
         """
+
+        # spawning the threads
         thread1 = threading.Thread(target=self.listen_midi)
         thread2 = threading.Thread(target=self.fire_events)
         thread3 = threading.Thread(target=self.play_midi)
         thread4 = threading.Thread(target=self.change_scale)
 
+        # starting the threads
         thread1.start()
         thread2.start()
         thread3.start()
         thread4.start()
 
-        # thread1.join()
-        # thread2.join()
-        # thread3.join()
-        # thread4.join()
+        # joining the threads
+        thread1.join()
+        thread2.join()
+        thread3.join()
+        thread4.join()
 
     def fire_events(self):
         """
@@ -181,17 +210,54 @@ class MuseEchoes:
                         self.bufferFullEvent.set()
 
     def play_midi(self):
+        """
+        This thread generates a melody using two Markov Chains, one for the
+        note sequence and one for the rhythmic sequence. It then uses a combination
+        of these sequences, and the current chord as an input for the midi sequencer.
+        """
+
+        # =================================================
+        # Local variables
+        # =================================================
+
+        # markov chain used for generate a note sequence
         notes_markov_chain = markov_chain.MarkovChain()
+
+        # markov chain used to generate the rhythmic sequence
         rhythm_markov_chain = markov_chain.MarkovChain()
+
+        # current chord to be played in melodically notation
         current_chord = None
+
+        # sequence of input notes in std notation
         note_input_sequence = []
+
+        # sequence of rhythmic symbols
         rhythmic_input_sequence = []
+
+        # max length of the generated sequences
         generated_sequence_max_length = 10  # TODO: fine tune the value
+
+        # generated sequence for the notes in std notation
         note_generated_sequence = []
+
+        # generated sequence for the notes as midi values
         midi_generated_sequence = []
+
+        # generated sequence for the rhythmic symbols
         rhythm_generated_sequence = []
+
+        # sequence of note in the format accepted by the sequencer
         sequencer_input = []
-        chord_notes = []
+
+        # midi notes to be played by the sequencer for the chord generation
+        chord_input = []
+
+        # end of local variables =============================
+
+        # =================================================
+        # Initialization
+        # =================================================
 
         # waiting for the first measure
         self.bufferFullEvent.wait()
@@ -211,8 +277,11 @@ class MuseEchoes:
         rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
         notes_markov_chain.learn(note_input_sequence)
         rhythm_markov_chain.learn(rhythmic_input_sequence)
-        # end of initialization ==============
+        # end of initialization ==============================
 
+        # =================================================
+        # Sequence and chord generation loop
+        # =================================================
         while True:
             # waiting for one measure
             self.sequencerEvent.wait()
@@ -221,10 +290,10 @@ class MuseEchoes:
             # synchronization with change_scale thread
             self.changeScaleDoneEvent.wait()
 
-            with self.lock:
+            # getting the current chord
+            with self.lock:  # critical section
                 current_chord = self.degree_to_chord(self.chordSequence[self.measureCount])
-
-            # TODO: play the chord
+            # end of critical section
 
             # parsing the rhythm and the notes
             rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
@@ -250,13 +319,21 @@ class MuseEchoes:
                 chord_input = self.generate_midi_chord(current_chord)
                 self.sequencer.play(sequencer_input, chord_input)
 
+            # logging to the console
             print('abstract melody: {}'.format(note_generated_sequence))
             print('rhythmic pattern: {}'.format(rhythm_generated_sequence))
             print('midi notes: {}'.format(midi_generated_sequence))
             print('chord: {}'.format(current_chord))
             print()
 
+        # end of the loop ====================================
+
     def change_scale(self):
+        """
+        Thread used to update the harmonic frame of the execution.
+        It updates the harmonicState and generates a chord succession
+        using a Markov chain trained on the beatles chord database.
+        """
         # markov chain trained on The Beatles chord database
         chords_markov_chain = markov_chain.chord_markov_chain
 
@@ -270,7 +347,7 @@ class MuseEchoes:
 
             # updating the scale and the chords
             with self.lock:  # critical section
-                self.chordSequence = chords_markov_chain.sample(4)
+                self.chordSequence = chords_markov_chain.sample(4)  # TODO: the number of chord should change
                 self.harmonicState.push_notes(self.noteBuffer)
                 self.noteBuffer = []
                 self.currentScale = self.harmonicState.get_mode_notes()
@@ -283,7 +360,8 @@ class MuseEchoes:
 
     def parse_midi_notes(self, current_chord):
         """
-        Parses the note and rhythmic sequence from the midiNoteQueue.
+        Utility method used to parse the note and rhythmic sequences
+        from the midiNoteQueue.
 
         :param current_chord: chord in melodically notation
         :return: rhythmic_input_sequence, note_input_sequence lists
@@ -299,29 +377,59 @@ class MuseEchoes:
         return rhythmic_input_sequence, note_input_sequence
 
     def generate_midi_sequence(self, note_sequence, chord):
+        """
+        Utility method used to generate a midi sequence from an abstract
+        melody and an input chord.
+
+        :param note_sequence: abstract notes sequence
+        :param chord: chord in melodically notation
+        :return: midi sequence of the melody
+        """
         c_tones = melodically.chord_tones[chord]['c']
         l_tones = melodically.chord_tones[chord]['l']
         notes_not_in_scale = list(set(melodically.musical_notes) - set(c_tones) - set(l_tones))
         result = []
         for note in note_sequence:
-            if note == 'c':
-                result.append(self.random_pick(c_tones))
-            elif note == 'l':
-                result.append(self.random_pick(l_tones))
-            else:
-                result.append(self.random_pick(notes_not_in_scale))
+            if note == 'c':  # chord tone
+                result.append(self.midi_random_note_pick(c_tones))
+            elif note == 'l':  # color tone
+                result.append(self.midi_random_note_pick(l_tones))
+            else:  # random tone
+                result.append(self.midi_random_note_pick(notes_not_in_scale))
 
         return result
 
     def generate_midi_chord(self, chord):
+        """
+        Utility method used to Generate a list of midi notes
+         composing a chord with a random voicing.
+
+        :param chord: chord in melodically notation
+        :return: list of notes composing the chord
+        """
         random_octaves = [random.randint(self.chordOctaveRange[0], self.chordOctaveRange[1]) for i in range(4)]
         return melodically.chord_to_midi(chord, random_octaves)
 
-    def random_pick(self, sequence):
-        return melodically.std_to_midi(random.choice(sequence),
+    def midi_random_note_pick(self, note_collection):
+        """
+        Utility method used to pick a random note from a note_collection,
+        generating a midi note between the octaves specified in the
+        melodyOctaveRange method.
+
+        :param note_collection: list of notes in std notation
+        :return: midi value of the picked note
+        """
+        return melodically.std_to_midi(random.choice(note_collection),
                                        random.randint(self.melodyOctaveRange[0], self.melodyOctaveRange[1]))
 
     def degree_to_chord(self, degree):
+        """
+        Utility method that returns a chord in melodically notation
+        from a chord degree.
+
+        :param degree: chord degree in roman notation
+        :return: chord in melodically notation
+        """
         degree_number = degrees.index(degree)
         current_mode = self.harmonicState.currentMode
         root = current_mode['root']
