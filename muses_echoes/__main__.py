@@ -15,12 +15,16 @@ from muses_echoes.muses import MuseEchoes
 Change these variables to easily modify the
 settings of the application.
 """
+# TODO: test the parameters
 _osc_ip = "127.0.0.1"
 _osc_port = 1337
 _midi_buffer_size = 10
 _bpm = 74
-_measures_for_scale_change = 4
+_measures_for_scale_change = 8
 _melody_octave_range = (4, 6)
+_chord_octave_range = (2, 5)
+_markov_chains_order = 3
+_markov_chains_inertia = 0.7
 
 if __name__ == '__main__':
     # =========================================
@@ -64,5 +68,8 @@ if __name__ == '__main__':
         bpm=_bpm,
         measures_for_scale_change=_measures_for_scale_change,
         melody_octave_range=_melody_octave_range,
+        chord_octave_range=_chord_octave_range,
+        markov_chains_order=_markov_chains_order,
+        markov_chains_inertia=_markov_chains_inertia
     )
     midiServer.start()
