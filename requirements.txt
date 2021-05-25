@@ -18,7 +18,7 @@ llvmlite==0.35.0
 Markdown==3.3.3
 matplotlib==3.3.3
 mdown==2020.12.3
-melodically==0.0.9
+melodically==0.0.10
 mido==1.2.9
 mkdir==2020.12.3
 networkx==2.5.1
