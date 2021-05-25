@@ -17,7 +17,7 @@ class MuseEchoes:
     This class implements the Muses' Echoes application.
     After an object is created passing all the requested parameters to modify
     the settings, the application can be started calling the start method.
-    The starting method will block the execution and spawn the threads needed
+    The start method will block the execution and spawn the threads needed
     for the application to work. The fire_event method will than handle the
     synchronization between the threads.
 
