@@ -15,13 +15,16 @@ class MarkovChain:
     implementation of a Markov Chain.
     """
 
-    def __init__(self, order=3):
+    def __init__(self, order=3, inertia=0.7):
         # markov chain reference
         self.markovChain = None
 
         # value between 0 and 1 that indicates how old melodies still
         # influence the probabilities of the markov chain
-        self.keepOldMelodies = 0.7
+        self.keepOldMelodies = inertia
+
+        # order of the markov chain
+        self.order = order
 
         # flag to indicate if the first melody has already been learned
         self.isTheFirstMelody = True
@@ -33,7 +36,7 @@ class MarkovChain:
         :param sequence: list of symbols
         """
         if self.isTheFirstMelody:
-            self.markovChain = pg.MarkovChain.from_samples([sequence])
+            self.markovChain = pg.MarkovChain.from_samples([sequence], k=self.order)
         else:
             self.markovChain.fit([sequence], inertia=self.keepOldMelodies)
 
