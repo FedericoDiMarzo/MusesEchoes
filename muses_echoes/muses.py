@@ -236,7 +236,7 @@ class MuseEchoes:
         rhythmic_input_sequence = []
 
         # max length of the generated sequences
-        generated_sequence_max_length = 10  # TODO: fine tune the value
+        generated_sequence_max_length = 10
 
         # generated sequence for the notes in std notation
         note_generated_sequence = []
