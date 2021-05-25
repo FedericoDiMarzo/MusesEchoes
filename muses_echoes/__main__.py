@@ -1,4 +1,12 @@
 # TODO: change mode if N x notes are detected
+
+"""
+TODO: modes&emotions
+upmood: I-V
+melancholy: II-VI
+exotic: III-IV-VII
+"""
+
 import sys
 import mido
 from muses_echoes.muses import MuseEchoes
@@ -22,9 +30,15 @@ if __name__ == '__main__':
     midi_output_names = mido.get_output_names()
 
     if len(sys.argv) <= 3:
-        print('usage: python -m muses_echoes midi_in_port_index midi_out_port_index\n',
+        print('usage: python -m muses_echoes [in] [melodies] [chords]',
+              '__________\n',
               'midi in ports: {}'.format(midi_input_names),
               'midi out ports: {}'.format(midi_output_names),
+              '__________\n',
+              '[in]: midi in port index used to receive notes',
+              '[melodies]: midi out port index used to send notes for the melody',
+              '[chords]: midi out port index used to send notes for the chords',
+              '',
               sep='\n')
         exit(-1)
 
