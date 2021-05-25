@@ -44,7 +44,9 @@ class MuseEchoes:
                  osc_ip="127.0.0.1", osc_port=1337,
                  bpm=74, measures_for_scale_change=4,
                  melody_octave_range=(4, 6),
-                 chord_octave_range=(2, 5)):
+                 chord_octave_range=(2, 5),
+                 markov_chains_order=3,
+                 markov_chains_inertia=0.7):
 
         # lock used to protect the critical sections
         self.lock = threading.Lock()
@@ -118,6 +120,10 @@ class MuseEchoes:
         self.sequencer = Sequencer(sequence_port=self.midiSequenceOutPort,
                                    chord_port=self.midiChordOutPort,
                                    bpm=self.bpm)
+
+        # order and inertia parameters of the markov chains
+        self.markovChainsOrder = markov_chains_order
+        self.markovChainsInertia = markov_chains_inertia
 
     def start(self):
         """
@@ -221,10 +227,10 @@ class MuseEchoes:
         # =================================================
 
         # markov chain used for generate a note sequence
-        notes_markov_chain = markov_chain.MarkovChain()
+        notes_markov_chain = markov_chain.MarkovChain(order=self.markovChainsOrder, inertia=self.markovChainsInertia)
 
         # markov chain used to generate the rhythmic sequence
-        rhythm_markov_chain = markov_chain.MarkovChain()
+        rhythm_markov_chain = markov_chain.MarkovChain(order=self.markovChainsOrder, inertia=self.markovChainsInertia)
 
         # current chord to be played in melodically notation
         current_chord = None
@@ -347,7 +353,7 @@ class MuseEchoes:
 
             # updating the scale and the chords
             with self.lock:  # critical section
-                self.chordSequence = chords_markov_chain.sample(4)  # TODO: the number of chord should change
+                self.chordSequence = chords_markov_chain.sample(self.measuresForScaleChange)
                 self.harmonicState.push_notes(self.noteBuffer)
                 self.noteBuffer = []
                 self.currentScale = self.harmonicState.get_mode_notes()
@@ -387,7 +393,6 @@ class MuseEchoes:
         """
         c_tones = melodically.chord_tones[chord]['c']
         l_tones = melodically.chord_tones[chord]['l']
-        notes_not_in_scale = list(set(melodically.musical_notes) - set(c_tones) - set(l_tones))
         result = []
         for note in note_sequence:
             if note == 'c':  # chord tone
@@ -395,7 +400,7 @@ class MuseEchoes:
             elif note == 'l':  # color tone
                 result.append(self.midi_random_note_pick(l_tones))
             else:  # random tone
-                result.append(self.midi_random_note_pick(notes_not_in_scale))
+                result.append(self.midi_random_note_pick(melodically.musical_notes))
 
         return result
 
