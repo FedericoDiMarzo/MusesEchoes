@@ -382,6 +382,7 @@ class MuseEchoes:
                 self.midiMappingIndex = self.harmonicState.currentMode['mode_index']
                 print('scale: {}'.format(self.currentScale))
                 print('next chords: {}'.format(self.chordSequence))
+                print('midi channel: {}'.format(self.midiMapping[self.midiMappingIndex]))
             # end of critical section
 
             # synchronization with play_midi thread
