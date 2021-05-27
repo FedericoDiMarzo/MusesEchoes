@@ -6,9 +6,11 @@ import time
 
 class Sequencer:
     def __init__(self, sequence_port, chord_port, bpm=74):
+        # TODO: comments
         self.sequenceOutPort = sequence_port
         self.chordOutPort = chord_port
         self.bpm = bpm
+        self.midiChannel = 0
         self.durations = melodically.get_durations(self.bpm)
         self.thread1 = threading.Thread(target=self.run_sequences)
         self.thread2 = threading.Thread(target=self.run_chords)
@@ -17,6 +19,7 @@ class Sequencer:
         self.lock = threading.Lock()
         self.sequence = []
         self.chord_notes = []
+
         self.thread1.start()
         self.thread2.start()
 
@@ -24,11 +27,12 @@ class Sequencer:
         self.durations = melodically.get_durations(bpm)
         self.bpm = bpm
 
-    def play(self, sequence, chord_notes):
+    def play(self, sequence, chord_notes, midi_channel):
         # critical section
         with self.lock:
             self.sequence = sequence
             self.chord_notes = chord_notes
+            self.midiChannel = midi_channel
         # end of critical section
 
         self.playChordEvent.set()
@@ -37,7 +41,6 @@ class Sequencer:
 
     def run_sequences(self):
         while True:
-            # TODO: bug the sequence loops even with the event lock
             self.playSequenceEvent.wait()
             self.playSequenceEvent.clear()
 
@@ -49,10 +52,11 @@ class Sequencer:
                 for step in sequence:
                     with self.lock:  # critical section
                         duration = self.durations[step['duration'].replace('r', '')]
+                        channel = self.midiChannel - 1
                     # end of critical section
 
-                    note_on = mido.Message('note_on', note=step['note'])
-                    note_off = mido.Message('note_off', note=step['note'])
+                    note_on = mido.Message('note_on', note=step['note'], channel=channel)
+                    note_off = mido.Message('note_off', note=step['note'], channel=channel)
 
                     if 'r' not in step['duration']:
                         outport.send(note_on)
