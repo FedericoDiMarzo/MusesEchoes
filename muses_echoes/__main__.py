@@ -13,8 +13,8 @@ _midi_buffer_size = 10
 _midi_mapping = [1, 2, 3, 3, 1, 2, 3]  # 1: I-V / 2: II-VI / 3: III-IV-VII
 _bpm = 74
 _measures_for_scale_change = 8
-_melody_octave_range = (4, 6)
-_chord_octave_range = (2, 5)
+_melody_octave_range = (4, 5)
+_chord_octave_range = (3, 5)
 _markov_chains_order = 3
 _markov_chains_inertia = 0.7
 
