@@ -79,10 +79,11 @@ class Sequencer:
 
                 with self.lock:  # critical section
                     chord_notes = self.chord_notes.copy()
+                    channel = self.midiChannel - 1
                 # end of critical section
 
-                messages_note_on = [mido.Message('note_on', note=x) for x in chord_notes]
-                messages_note_off = [mido.Message('note_off', note=x) for x in chord_notes]
+                messages_note_on = [mido.Message('note_on', note=x, channel=channel) for x in chord_notes]
+                messages_note_off = [mido.Message('note_off', note=x, channel=channel) for x in chord_notes]
 
                 for note_on in messages_note_on:
                     outport.send(note_on)
