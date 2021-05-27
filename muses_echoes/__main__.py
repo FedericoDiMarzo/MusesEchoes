@@ -1,12 +1,3 @@
-# TODO: change mode if N x notes are detected
-
-"""
-TODO: modes&emotions
-upmood: I-V
-melancholy: II-VI
-exotic: III-IV-VII
-"""
-
 import sys
 import mido
 from muses_echoes.muses import MuseEchoes
@@ -15,10 +6,11 @@ from muses_echoes.muses import MuseEchoes
 Change these variables to easily modify the
 settings of the application.
 """
-# TODO: test the parameters
+# TODO: test the parameters (Andre)
 _osc_ip = "127.0.0.1"
 _osc_port = 1337
 _midi_buffer_size = 10
+_midi_mapping = [1, 2, 3, 3, 1, 2, 3]  # 1: I-V / 2: II-VI / 3: III-IV-VII
 _bpm = 74
 _measures_for_scale_change = 8
 _melody_octave_range = (4, 6)
@@ -62,6 +54,7 @@ if __name__ == '__main__':
         midi_in_port=midi_input_names[midi_in_index],
         midi_sequence_out_port=midi_output_names[midi_sequence_out_index],
         midi_chord_out_port=midi_output_names[midi_chord_out_index],
+        midi_mapping=_midi_mapping,
         osc_ip=_osc_ip,
         osc_port=_osc_port,
         midi_buffer_size=_midi_buffer_size,
