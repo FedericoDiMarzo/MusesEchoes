@@ -40,6 +40,7 @@ class MuseEchoes:
 
     def __init__(self, midi_in_port,
                  midi_sequence_out_port, midi_chord_out_port,
+                 midi_mapping=[1, 2, 3, 4, 5, 6, 7],
                  midi_buffer_size=10,
                  osc_ip="127.0.0.1", osc_port=1337,
                  bpm=74, measures_for_scale_change=4,
@@ -53,6 +54,7 @@ class MuseEchoes:
         :param midi_in_port: name of the midi input port
         :param midi_sequence_out_port: name of the midi output port for the melody
         :param midi_chord_out_port: name of the midi output port for the chords
+        :param midi_mapping: indicates how the modes are mapped to a certain midi channel
         :param midi_buffer_size: size of the buffer used to store midi notes before pushing them in the MidiNoteQueue
         :param osc_ip: ip string for the osc node receiving information about the scale
         :param osc_port: port string the osc node receiving information about the scale
@@ -84,6 +86,10 @@ class MuseEchoes:
         self.midiSequenceOutPort = midi_sequence_out_port
         self.midiChordOutPort = midi_chord_out_port
 
+        # mode to midi channel mapping
+        self.midiMapping = midi_mapping
+        self.midiMappingIndex = 0
+
         # ip for the osc protocol
         self.oscIp = osc_ip
 
@@ -106,7 +112,7 @@ class MuseEchoes:
         self.midiNoteQueue = melodically.MidiNoteQueue()
 
         # used to change the scale
-        self.harmonicState = melodically.HarmonicState(buffer_size=self.midiBufferLen * 3)  # TODO: fine tune this value
+        self.harmonicState = melodically.HarmonicState(buffer_size=self.midiBufferLen * 3)  # TODO: fine tune this value (Andre)
 
         # current modal scale
         self.currentScale = []
@@ -312,9 +318,10 @@ class MuseEchoes:
             # synchronization with change_scale thread
             self.changeScaleDoneEvent.wait()
 
-            # getting the current chord
+            # getting the current chord and midi channel
             with self.lock:  # critical section
                 current_chord = self.degree_to_chord(self.chordSequence[self.measureCount])
+                midi_channel = self.midiMapping[self.midiMappingIndex]
             # end of critical section
 
             # parsing the rhythm and the notes
@@ -332,14 +339,13 @@ class MuseEchoes:
             midi_generated_sequence = self.generate_midi_sequence(note_generated_sequence, current_chord)
 
             # TODO: understand why some sequence are empty
-            # TODO: play a chord even if the sequence is empty
 
             # playing the sequencer
             if rhythm_generated_sequence:
                 sequencer_input = [{'note': x, 'duration': y} for x, y in
                                    zip(midi_generated_sequence, rhythm_generated_sequence)]
                 chord_input = self.generate_midi_chord(current_chord)
-                self.sequencer.play(sequencer_input, chord_input)
+                self.sequencer.play(sequencer_input, chord_input, midi_channel)
 
             # logging to the console
             print('abstract melody: {}'.format(note_generated_sequence))
@@ -373,6 +379,7 @@ class MuseEchoes:
                 self.harmonicState.push_notes(self.noteBuffer)
                 self.noteBuffer = []
                 self.currentScale = self.harmonicState.get_mode_notes()
+                self.midiMappingIndex = self.harmonicState.currentMode['mode_index']
                 print('scale: {}'.format(self.currentScale))
                 print('next chords: {}'.format(self.chordSequence))
             # end of critical section
