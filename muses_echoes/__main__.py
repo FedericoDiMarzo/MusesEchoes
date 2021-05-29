@@ -9,14 +9,15 @@ settings of the application.
 # TODO: test the parameters (Andre)
 _osc_ip = "127.0.0.1"
 _osc_port = 1337
-_midi_buffer_size = 10
+_midi_buffer_size = 15
 _midi_mapping = [1, 2, 3, 3, 1, 2, 3]  # 1: I-V / 2: II-VI / 3: III-IV-VII
-_bpm = 74
+# _midi_mapping = [1, 1, 1, 1, 1, 1, 1]  # TODO: Test
+_bpm = 90
 _measures_for_scale_change = 8
 _melody_octave_range = (4, 5)
 _chord_octave_range = (3, 5)
 _markov_chains_order = 3
-_markov_chains_inertia = 0.7
+_markov_chains_inertia = 0.8
 
 if __name__ == '__main__':
     # =========================================
