@@ -343,7 +343,7 @@ class MuseEchoes:
             rhythm_generated_sequence = rhythm_markov_chain.generate(generated_sequence_max_length)
             rhythm_generated_sequence = melodically.clip_rhythmic_sequence(rhythmic_input_sequence, 1)
             note_generated_sequence = notes_markov_chain.generate(len(rhythm_generated_sequence))
-            midi_generated_sequence = self.generate_midi_sequence(note_generated_sequence, current_chord)
+            midi_generated_sequence = self.generate_midi_sequence(note_generated_sequence, first_chord)
 
             # TODO: understand why some sequence are empty
 
