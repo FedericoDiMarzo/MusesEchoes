@@ -113,7 +113,7 @@ class MuseEchoes:
 
         # used to change the scale
         self.harmonicState = melodically.HarmonicState(
-            buffer_size=self.midiBufferLen * 3)  # TODO: fine tune this value (Andre)
+            buffer_size= 8 )  # TODO: fine tune this value (Andre)
 
         # current modal scale
         self.currentScale = []
