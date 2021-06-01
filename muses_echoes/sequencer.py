@@ -26,6 +26,7 @@ class Sequencer:
 
         self.thread1.start()
         self.thread2.start()
+        self.thread3.start()
 
     def set_bpm(self, bpm):
         self.durations = melodically.get_durations(bpm)
