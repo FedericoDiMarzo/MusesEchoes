@@ -5,20 +5,24 @@ import time
 
 
 class Sequencer:
-    def __init__(self, sequence_port, chord_port, bpm=74):
+    def __init__(self, sequence_port, chord_port, rhythm_port, bpm=74):
         # TODO: comments
         self.sequenceOutPort = sequence_port
         self.chordOutPort = chord_port
+        self.rhythmPort = rhythm_port
         self.bpm = bpm
         self.midiChannel = 0
         self.durations = melodically.get_durations(self.bpm)
         self.thread1 = threading.Thread(target=self.run_sequences)
         self.thread2 = threading.Thread(target=self.run_chords)
+        self.thread3 = threading.Thread(target=self.run_chords)
         self.playSequenceEvent = threading.Event()
         self.playChordEvent = threading.Event()
+        self.playRhythmEvent = threading.Event()
         self.lock = threading.Lock()
         self.sequence = []
         self.chord_notes = []
+        self.rhythmNote = 24
 
         self.thread1.start()
         self.thread2.start()
@@ -27,7 +31,7 @@ class Sequencer:
         self.durations = melodically.get_durations(bpm)
         self.bpm = bpm
 
-    def play(self, sequence, chord_notes, midi_channel):
+    def play(self, sequence, chord_notes, rhythm_note, midi_channel):
         # critical section
         with self.lock:
             self.sequence = sequence
@@ -36,8 +40,32 @@ class Sequencer:
         # end of critical section
 
         self.playChordEvent.set()
+        self.playRhythmEvent.set()
         if sequence:
             self.playSequenceEvent.set()
+
+    def run_rhythm(self):
+        rhythm_sequence = ['4', '4', '4', '4']
+        rhythm_sequence = melodically.clip_rhythmic_sequence(rhythm_sequence, 1)
+
+        while True:
+            self.playRhythmEvent.wait()
+            self.playRhythmEvent.clear()
+
+            with self.lock:  # critical section
+                rhythm_note = self.rhythmNote
+                channel = self.midiChannel - 1
+                durations = self.durations.copy()
+            # end of critical section
+
+            note_on = mido.Message('note_on', note=rhythm_note, channel=channel)
+            note_off = mido.Message('note_off', note=rhythm_note, channel=channel)
+
+            with mido.open_output(self.sequenceOutPort) as outport:
+                for step in rhythm_sequence:
+                    outport.send(note_on)
+                    time.sleep(durations[step])
+                    outport.send(note_off)
 
     def run_sequences(self):
         while True:
@@ -46,13 +74,13 @@ class Sequencer:
 
             with self.lock:  # critical section
                 sequence = self.sequence.copy()
+                channel = self.midiChannel - 1
             # end of critical section
 
             with mido.open_output(self.sequenceOutPort) as outport:
                 for step in sequence:
                     with self.lock:  # critical section
                         duration = self.durations[step['duration'].replace('r', '')]
-                        channel = self.midiChannel - 1
                     # end of critical section
 
                     note_on = mido.Message('note_on', note=step['note'], channel=channel)
