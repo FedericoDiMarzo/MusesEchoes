@@ -39,13 +39,14 @@ class MuseEchoes:
     """
 
     def __init__(self, midi_in_port,
-                 midi_sequence_out_port, midi_chord_out_port,
+                 midi_sequence_out_port, midi_chord_out_port, midi_rhythm_out_port,
                  midi_mapping=[1, 2, 3, 4, 5, 6, 7],
                  midi_buffer_size=10,
                  osc_ip="127.0.0.1", osc_port=1337,
                  bpm=74, measures_for_scale_change=4,
                  melody_octave_range=(4, 6),
                  chord_octave_range=(2, 5),
+                 rhythm_midi_note=24,  # C1
                  markov_chains_order=3,
                  markov_chains_inertia=0.7):
         """
@@ -54,6 +55,7 @@ class MuseEchoes:
         :param midi_in_port: name of the midi input port
         :param midi_sequence_out_port: name of the midi output port for the melody
         :param midi_chord_out_port: name of the midi output port for the chords
+        :param midi_rhythm_out_port: name of the midi output port for the rhythm
         :param midi_mapping: indicates how the modes are mapped to a certain midi channel
         :param midi_buffer_size: size of the buffer used to store midi notes before pushing them in the MidiNoteQueue
         :param osc_ip: ip string for the osc node receiving information about the scale
@@ -62,6 +64,7 @@ class MuseEchoes:
         :param measures_for_scale_change: positive integer indicating the number of measures for a change of scale
         :param melody_octave_range: tuple containing the lowest and the highest octaves used for generating the melodies
         :param chord_octave_range: tuple containing the lowest and the highest octaves used for generating the chords
+        :param rhythm_midi_note: midi note used for the rhythmic sequencer track
         :param markov_chains_order: order of the Markov Chains used to generate the melodies
         :param markov_chains_inertia: value between [0-1] used to indicate the influence of old melodies in the learning
         """
@@ -85,6 +88,7 @@ class MuseEchoes:
         self.midiInPort = midi_in_port
         self.midiSequenceOutPort = midi_sequence_out_port
         self.midiChordOutPort = midi_chord_out_port
+        self.midiRhythmOutPort = midi_rhythm_out_port
 
         # mode to midi channel mapping
         self.midiMapping = midi_mapping
@@ -112,8 +116,7 @@ class MuseEchoes:
         self.midiNoteQueue = melodically.MidiNoteQueue()
 
         # used to change the scale
-        self.harmonicState = melodically.HarmonicState(
-            buffer_size= 8 )  # TODO: fine tune this value (Andre)
+        self.harmonicState = melodically.HarmonicState(buffer_size=8)
 
         # current modal scale
         self.currentScale = []
@@ -139,9 +142,14 @@ class MuseEchoes:
         self.melodyOctaveRange = melody_octave_range
         self.chordOctaveRange = chord_octave_range
 
+        # midi note used for the rhythmic sequencer
+        self.rhythmMidiNote = rhythm_midi_note
+
         # midi sequencer
         self.sequencer = Sequencer(sequence_port=self.midiSequenceOutPort,
                                    chord_port=self.midiChordOutPort,
+                                   rhythm_port=self.midiRhythmOutPort,
+
                                    bpm=self.bpm)
 
         # order and inertia parameters of the markov chains
