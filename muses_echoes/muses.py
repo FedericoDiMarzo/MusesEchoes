@@ -312,11 +312,10 @@ class MuseEchoes:
         with self.lock:  # critical section
             # the first scale is also set here
             self.harmonicState.push_notes(self.noteBuffer)
-        # end of critical section
 
-        with self.lock:
+            # getting the first chord
             current_chord = self.degree_to_chord(self.chordSequence[self.measureCount])
-            first_chord = self.degree_to_chord('I')
+        # end of critical section
 
         rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
         notes_markov_chain.learn(note_input_sequence)
@@ -334,14 +333,14 @@ class MuseEchoes:
             # synchronization with change_scale thread
             self.changeScaleDoneEvent.wait()
 
-            # getting the current chord and midi channel
+            # getting the current, first chords and midi channel
             with self.lock:  # critical section
                 current_chord = self.degree_to_chord(self.chordSequence[self.measureCount])
+                first_chord = self.degree_to_chord('I')
                 midi_channel = self.midiMapping[self.midiMappingIndex]
             # end of critical section
 
             # parsing the rhythm and the notes
-            # TODO: generating sequences on the first grade
             # rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
             rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
 
@@ -363,9 +362,9 @@ class MuseEchoes:
             if rhythm_generated_sequence:
                 sequencer_input = [{'note': x, 'duration': y} for x, y in
                                    zip(midi_generated_sequence, rhythm_generated_sequence)]
-                self.sequencer.play(sequencer_input, chord_input, midi_channel, rhythm_note)
+                self.sequencer.play(sequencer_input, chord_input, rhythm_note, midi_channel)
             else:
-                self.sequencer.play([], chord_input, midi_channel, rhythm_note)
+                self.sequencer.play([], chord_input, rhythm_note, midi_channel)
 
             # logging to the console
             print('abstract melody: {}'.format(note_generated_sequence))

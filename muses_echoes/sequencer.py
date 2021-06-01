@@ -38,6 +38,7 @@ class Sequencer:
             self.sequence = sequence
             self.chord_notes = chord_notes
             self.midiChannel = midi_channel
+            self.rhythmNote = rhythm_note
         # end of critical section
 
         self.playChordEvent.set()
