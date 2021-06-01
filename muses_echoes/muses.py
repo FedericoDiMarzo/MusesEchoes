@@ -365,7 +365,7 @@ class MuseEchoes:
                                    zip(midi_generated_sequence, rhythm_generated_sequence)]
                 self.sequencer.play(sequencer_input, chord_input, midi_channel, rhythm_note)
             else:
-                self.sequencer.play([], chord_input, midi_channel, self.rhythmMidiNote)
+                self.sequencer.play([], chord_input, midi_channel, rhythm_note)
 
             # logging to the console
             print('abstract melody: {}'.format(note_generated_sequence))

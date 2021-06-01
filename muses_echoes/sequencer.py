@@ -15,7 +15,7 @@ class Sequencer:
         self.durations = melodically.get_durations(self.bpm)
         self.thread1 = threading.Thread(target=self.run_sequences)
         self.thread2 = threading.Thread(target=self.run_chords)
-        self.thread3 = threading.Thread(target=self.run_chords)
+        self.thread3 = threading.Thread(target=self.run_rhythm)
         self.playSequenceEvent = threading.Event()
         self.playChordEvent = threading.Event()
         self.playRhythmEvent = threading.Event()
