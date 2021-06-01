@@ -9,7 +9,7 @@ class Sequencer:
         # TODO: comments
         self.sequenceOutPort = sequence_port
         self.chordOutPort = chord_port
-        self.rhythmPort = rhythm_port
+        self.rhythmOutPort = rhythm_port
         self.bpm = bpm
         self.midiChannel = 0
         self.durations = melodically.get_durations(self.bpm)
@@ -62,7 +62,7 @@ class Sequencer:
             note_on = mido.Message('note_on', note=rhythm_note, channel=channel)
             note_off = mido.Message('note_off', note=rhythm_note, channel=channel)
 
-            with mido.open_output(self.sequenceOutPort) as outport:
+            with mido.open_output(self.rhythmOutPort) as outport:
                 for step in rhythm_sequence:
                     outport.send(note_on)
                     time.sleep(durations[step])
