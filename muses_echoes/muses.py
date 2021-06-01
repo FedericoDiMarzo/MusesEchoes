@@ -275,6 +275,9 @@ class MuseEchoes:
         # sequence of rhythmic symbols
         rhythmic_input_sequence = []
 
+        # note fr the rhythmic part
+        rhythm_note = self.rhythmMidiNote  # TODO: critical section
+
         # max length of the generated sequences
         generated_sequence_max_length = 10
 
@@ -360,9 +363,9 @@ class MuseEchoes:
             if rhythm_generated_sequence:
                 sequencer_input = [{'note': x, 'duration': y} for x, y in
                                    zip(midi_generated_sequence, rhythm_generated_sequence)]
-                self.sequencer.play(sequencer_input, chord_input, midi_channel)
+                self.sequencer.play(sequencer_input, chord_input, midi_channel, rhythm_note)
             else:
-                self.sequencer.play([], chord_input, midi_channel)
+                self.sequencer.play([], chord_input, midi_channel, self.rhythmMidiNote)
 
             # logging to the console
             print('abstract melody: {}'.format(note_generated_sequence))
