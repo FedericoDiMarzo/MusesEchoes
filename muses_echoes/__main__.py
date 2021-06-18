@@ -6,7 +6,6 @@ from muses_echoes.muses import MuseEchoes
 Change these variables to easily modify the
 settings of the application.
 """
-# TODO: test the parameters (Andre)
 _osc_ip = "127.0.0.1"
 _osc_port = 1337
 _midi_buffer_size = 3
@@ -18,7 +17,7 @@ _melody_octave_range = (4, 5)
 _chord_octave_range = (3, 4)
 _rhythm_midi_note = 24  # C1
 _markov_chains_order = 3
-_markov_chains_inertia = 0.81
+_markov_chains_inertia = 0.78
 
 if __name__ == '__main__':
     # =========================================
