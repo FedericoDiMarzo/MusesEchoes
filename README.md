@@ -42,6 +42,7 @@ Once the __main.py file is launched, go to the terminal and type the following c
 python -m muses echoes
 ```
 The system will show the position of the midi ports.
+
 ![image](https://user-images.githubusercontent.com/60785720/123108244-8b963200-d43a-11eb-909b-736f3f743d38.png)
 
 To set the correct parameter for each midi port it is sufficient to indicate the position of the relative ports shown, starting from the zero value:
