@@ -100,6 +100,9 @@ class MuseEchoes:
         # port for the osc protocol
         self.oscPort = osc_port
 
+        # setting up OSC
+        self.oscClient = SimpleUDPClient(osc_ip, osc_port)
+
         # length of the midi buffer used for the input
         self.midiBufferLen = midi_buffer_size
 
@@ -108,9 +111,6 @@ class MuseEchoes:
 
         # counter for the measures
         self.measureCount = 0
-
-        # setting up OSC
-        self.oscClient = SimpleUDPClient(osc_ip, osc_port)
 
         # midi note queue shared between the threads
         self.midiNoteQueue = melodically.MidiNoteQueue()
@@ -246,7 +246,6 @@ class MuseEchoes:
 
                         # triggering the event
                         self.bufferFullEvent.set()
-
 
     def _play_midi(self):
         """
@@ -413,14 +412,15 @@ class MuseEchoes:
                 self.noteBuffer = []
                 self.currentScale = self.harmonicState.get_mode_notes()
                 self.midiMappingIndex = self.harmonicState.currentMode['mode_index']
+                midi_channel = self.midiMapping[self.midiMappingIndex]
                 print('scale: {}'.format(self.currentScale))
                 print('next chords: {}'.format(self.chordSequence))
-                print('midi channel: {}'.format(self.midiMapping[self.midiMappingIndex]))
+                print('midi channel: {}'.format(midi_channel))
+                self.oscClient.send_message('/touchdesigner/mode', midi_channel - 1)
             # end of critical section
 
             # synchronization with play_midi thread
             self.changeScaleDoneEvent.set()
-
 
     def _parse_midi_notes(self, current_chord):
         """
