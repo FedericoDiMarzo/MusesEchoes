@@ -18,7 +18,7 @@ llvmlite==0.35.0
 Markdown==3.3.3
 matplotlib==3.3.3
 mdown==2020.12.3
-melodically==0.0.10
+melodically==0.0.13
 mido==1.2.9
 mkdir==2020.12.3
 networkx==2.5.1
@@ -31,6 +31,7 @@ Pillow==8.0.1
 pomegranate==0.14.5
 pooch==1.3.0
 public==2020.12.3
+PyAudio @ file:///C:/Users/mailf/Documents/Programmazione/Python/MusesEchoes/MusesEchoes/lib/PyAudio-0.2.11-cp38-cp38-win_amd64.whl
 pycparser==2.20
 pyjsparser==2.7.1
 pyparsing==2.4.7
