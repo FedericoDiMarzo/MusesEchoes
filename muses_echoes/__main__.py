@@ -8,7 +8,7 @@ settings of the application.
 """
 _osc_ip = "127.0.0.1"
 _osc_port = 1337
-_midi_buffer_size = 3
+_midi_buffer_size = 8
 # _midi_mapping = [1, 2, 3, 3, 1, 2, 3]  # 1: I-V / 2: II-VI / 3: III-IV-VII
 _midi_mapping = [1, 1, 1, 1, 1, 1, 1]  # TODO: Test
 _bpm = 74
