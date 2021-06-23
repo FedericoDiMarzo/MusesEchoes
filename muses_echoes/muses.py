@@ -162,10 +162,10 @@ class MuseEchoes:
         """
 
         # spawning the threads
-        thread1 = threading.Thread(target=self.listen_midi)
-        thread2 = threading.Thread(target=self.fire_events)
-        thread3 = threading.Thread(target=self.play_midi)
-        thread4 = threading.Thread(target=self.change_scale)
+        thread1 = threading.Thread(target=self._listen_midi)
+        thread2 = threading.Thread(target=self._fire_events)
+        thread3 = threading.Thread(target=self._play_midi)
+        thread4 = threading.Thread(target=self._change_scale)
 
         # starting the threads
         thread1.start()
@@ -179,7 +179,7 @@ class MuseEchoes:
         thread3.join()
         thread4.join()
 
-    def fire_events(self):
+    def _fire_events(self):
         """
         Thead that implements the synchronization between the threads using Events.
         It loops forever, sleeping for one measure at each loop. It triggers the
@@ -212,7 +212,7 @@ class MuseEchoes:
             # triggering the sequencer and the chords
             self.sequencerEvent.set()
 
-    def listen_midi(self):
+    def _listen_midi(self):
         """
         Thread implementing a never ending loop, listening for note_on/note_off
         messages from the midiInPort, saving the messages into a buffer.
@@ -226,12 +226,12 @@ class MuseEchoes:
         with mido.open_input(self.midiInPort) as midi_in_port:
             for midi_msg in midi_in_port:
                 if midi_msg.type == 'note_on' or 'note_off':
-                    # saving the messages in a buffer
+                    # saving the message in a buffer
                     midi_buffer.append({
                         'msg': midi_msg,
                         'timestamp': time.time()
                     })
-                    # print(midi_msg)
+
                     if len(midi_buffer) >= self.midiBufferLen:
                         # moving the messages from the midiBuffer to the midiNoteQueue
                         # and adding the new notes to the noteBuffer
@@ -239,6 +239,7 @@ class MuseEchoes:
                             for msg in midi_buffer:
                                 self.midiNoteQueue.push(msg['msg'].type, msg['msg'].note, msg['timestamp'])
                                 self.noteBuffer = self.noteBuffer + self.midiNoteQueue.get_notes()
+                        # critical section
 
                         # resetting the buffer
                         midi_buffer = []
@@ -246,7 +247,8 @@ class MuseEchoes:
                         # triggering the event
                         self.bufferFullEvent.set()
 
-    def play_midi(self):
+
+    def _play_midi(self):
         """
         This thread generates a melody using two Markov Chains, one for the
         note sequence and one for the rhythmic sequence. It then uses a combination
@@ -258,10 +260,12 @@ class MuseEchoes:
         # =================================================
 
         # markov chain used for generate a note sequence
-        notes_markov_chain = markov_chain.MarkovChain(order=self.markovChainsOrder, inertia=self.markovChainsInertia)
+        notes_markov_chain = markov_chain.MarkovChain(order=self.markovChainsOrder,
+                                                      inertia=self.markovChainsInertia)
 
         # markov chain used to generate the rhythmic sequence
-        rhythm_markov_chain = markov_chain.MarkovChain(order=self.markovChainsOrder, inertia=self.markovChainsInertia)
+        rhythm_markov_chain = markov_chain.MarkovChain(order=self.markovChainsOrder,
+                                                       inertia=self.markovChainsInertia)
 
         # current chord to be played in melodically notation
         current_chord = None
@@ -276,7 +280,7 @@ class MuseEchoes:
         rhythmic_input_sequence = []
 
         # note fr the rhythmic part
-        rhythm_note = self.rhythmMidiNote  # TODO: critical section
+        rhythm_note = self.rhythmMidiNote
 
         # max length of the generated sequences
         generated_sequence_max_length = 10
@@ -314,12 +318,22 @@ class MuseEchoes:
             self.harmonicState.push_notes(self.noteBuffer)
 
             # getting the first chord
-            current_chord = self.degree_to_chord(self.chordSequence[self.measureCount])
+            current_chord = self._degree_to_chord(self.chordSequence[self.measureCount])
         # end of critical section
 
-        rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
+        rhythmic_input_sequence, note_input_sequence = self._parse_midi_notes(current_chord)
+
+        # fallback in case the sequences are empty
+        if not rhythmic_input_sequence or not note_input_sequence:
+            rhythmic_input_sequence = ['r1']
+            note_input_sequence = ['x']
+
+        print('DEBUGG')
+        print(note_input_sequence)
+        print(rhythmic_input_sequence)
         notes_markov_chain.learn(note_input_sequence)
         rhythm_markov_chain.learn(rhythmic_input_sequence)
+        print('DEBUGG')
         # end of initialization ==============================
 
         # =================================================
@@ -335,14 +349,13 @@ class MuseEchoes:
 
             # getting the current, first chords and midi channel
             with self.lock:  # critical section
-                current_chord = self.degree_to_chord(self.chordSequence[self.measureCount])
-                first_chord = self.degree_to_chord('I')
+                current_chord = self._degree_to_chord(self.chordSequence[self.measureCount])
+                first_chord = self._degree_to_chord('I')
                 midi_channel = self.midiMapping[self.midiMappingIndex]
             # end of critical section
 
             # parsing the rhythm and the notes
-            # rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
-            rhythmic_input_sequence, note_input_sequence = self.parse_midi_notes(current_chord)
+            rhythmic_input_sequence, note_input_sequence = self._parse_midi_notes(current_chord)
 
             # training the markov chains
             if note_input_sequence and rhythmic_input_sequence:
@@ -353,12 +366,12 @@ class MuseEchoes:
             rhythm_generated_sequence = rhythm_markov_chain.generate(generated_sequence_max_length)
             rhythm_generated_sequence = melodically.clip_rhythmic_sequence(rhythmic_input_sequence, 1)
             note_generated_sequence = notes_markov_chain.generate(len(rhythm_generated_sequence))
-            midi_generated_sequence = self.generate_midi_sequence(note_generated_sequence, first_chord)
+            midi_generated_sequence = self._generate_midi_sequence(note_generated_sequence, first_chord)
 
             # TODO: understand why some sequence are empty
 
             # playing the sequencer
-            chord_input = self.generate_midi_chord(current_chord)
+            chord_input = self._generate_midi_chord(current_chord)
             if rhythm_generated_sequence:
                 sequencer_input = [{'note': x, 'duration': y} for x, y in
                                    zip(midi_generated_sequence, rhythm_generated_sequence)]
@@ -375,12 +388,13 @@ class MuseEchoes:
 
         # end of the loop ====================================
 
-    def change_scale(self):
+    def _change_scale(self):
         """
         Thread used to update the harmonic frame of the execution.
         It updates the harmonicState and generates a chord succession
         using a Markov chain trained on the beatles chord database.
         """
+
         # markov chain trained on The Beatles chord database
         chords_markov_chain = markov_chain.chord_markov_chain
 
@@ -407,7 +421,8 @@ class MuseEchoes:
             # synchronization with play_midi thread
             self.changeScaleDoneEvent.set()
 
-    def parse_midi_notes(self, current_chord):
+
+    def _parse_midi_notes(self, current_chord):
         """
         Utility method used to parse the note and rhythmic sequences
         from the midiNoteQueue.
@@ -425,7 +440,7 @@ class MuseEchoes:
         # end of the critical section
         return rhythmic_input_sequence, note_input_sequence
 
-    def generate_midi_sequence(self, note_sequence, chord):
+    def _generate_midi_sequence(self, note_sequence, chord):
         """
         Utility method used to generate a midi sequence from an abstract
         melody and an input chord.
@@ -439,15 +454,15 @@ class MuseEchoes:
         result = []
         for note in note_sequence:
             if note == 'c':  # chord tone
-                result.append(self.midi_random_note_pick(c_tones))
+                result.append(self._midi_random_note_pick(c_tones))
             elif note == 'l':  # color tone
-                result.append(self.midi_random_note_pick(l_tones))
+                result.append(self._midi_random_note_pick(l_tones))
             else:  # random tone
-                result.append(self.midi_random_note_pick(melodically.musical_notes))
+                result.append(self._midi_random_note_pick(melodically.musical_notes))
 
         return result
 
-    def generate_midi_chord(self, chord):
+    def _generate_midi_chord(self, chord):
         """
         Utility method used to Generate a list of midi notes
          composing a chord with a random voicing.
@@ -458,7 +473,7 @@ class MuseEchoes:
         random_octaves = [random.randint(self.chordOctaveRange[0], self.chordOctaveRange[1]) for i in range(4)]
         return melodically.chord_to_midi(chord, random_octaves)
 
-    def midi_random_note_pick(self, note_collection):
+    def _midi_random_note_pick(self, note_collection):
         """
         Utility method used to pick a random note from a note_collection,
         generating a midi note between the octaves specified in the
@@ -470,7 +485,7 @@ class MuseEchoes:
         return melodically.std_to_midi(random.choice(note_collection),
                                        random.randint(self.melodyOctaveRange[0], self.melodyOctaveRange[1]))
 
-    def degree_to_chord(self, degree):
+    def _degree_to_chord(self, degree):
         """
         Utility method that returns a chord in melodically notation
         from a chord degree.
