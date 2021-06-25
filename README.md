@@ -8,7 +8,7 @@ Muses.py is the main class that makes up the Muse's Echoes application. After an
 
 ## MARKOW CHAIN
 
-TODO
+TODO (accennare al fatto del file chords_markov_chain.bin)
 
 
 ## Modularity
@@ -75,4 +75,34 @@ TODO
 ## SOUND DESIGN
 
 TODO
+
+## Touch Designer
+Although Muses’ Echoes can be used with many different subsystems for visual renderings, an example application, based on TouchDesigner (https://derivative.ca)  can be found directly in this repository inside the omonimous folder.
+
+In order to run the TouchDesigner project, a version of the software (the free one is compatible with it) should be downloaded and installed from their website at https://derivative.ca/download .
+After the software has been installed, the script MusesEchoes.x.toe (where x is the latest version) inside the TouchDesigner folder can be launched.
+
+The visuals will start, presenting a white screen. In order to interact with the animation, the osc and midi settings must be changed. 
+
+For the midi settings, follow “Dialogs/MIDI Device Mapper”, a window showing the midi devices will appear. From this window, after the loopback ports have been setted up as explained in the previous section, check that the devices shown are the same as the ones in the figure below.
+
+FOTO_MIDI
+
+The TouchDesigner implementation supports only major and minor clusters of modes in the midi channels 1 (I-IV-V modes) and 2 (II-III-VI-VII modes). To reflect this mapping, the following setting should be changed inside the ``__main__.py`` script:
+
+```python
+_midi_mapping = [1, 2, 2, 1, 1, 2, 2]
+```
+
+Regarding the osc settings, the default port 1337 is already configured, if you want to change this setting search the osc dat block in figure (top left of the network), and modify its setting reflecting the one inside the ``__main__.py`` script.
+
+FOTO_OSC
+
+inside the const dat block named “parameters” (top left of the network) other settings can be modified, affecting the visuals, such as the midi note extensions of the various midi instruments, the size of the rendered notes, the vertical speed, etc..
+
+FOTO_PARAMETERS
+
+The last change that you should do before enjoying the installation, regards the colours of the notes for each instrument. The three VEDERE_NOME top blocks contain a reset button that can be pressed for a random palette generation. Keep resetting the palettes until you find the best for your tastes.
+
+GIF_COLORS
 
