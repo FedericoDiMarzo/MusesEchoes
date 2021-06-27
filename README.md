@@ -158,7 +158,18 @@ TODO
 
 ## SOUND DESIGN
 
-TODO
+there are certain ways to use different modes, in order to produce scales and melodies. One  way to describe or distinguish one mode from another is the **mood** or **feeling** that a certain mode gives to an human being. This comes from how Bright or Dark these modes are. For example, Lydian and Ionian Modes are used in happy and spiritually uplifting music. Mixolydian and Dorian Modes are often used in blues and gospel music. The Aeolian (minor) Mode is defined as melancholy and sad while Phrygian and Locrian Modes are the go-to Modes for scary, dramatic, and otherworldly sounds. [1]
+Below we represent a Brightest to Darkest modes chart. It is possible to notice that the more Flats, the Darker the sound:
+- Lydian: 1 2 3 #4 5 6 7 (Brightest)
+- Ionian: 1 2 3 4 5 6 7
+- Mixolydian: 1 2 3 4 5 6 b7
+- Dorian: 1 2 b3 4 5 6 b7
+- Aeolian: 1 2 b3 4 5 b6 b7
+- Phrygian: 1 b2 b3 4 5 b6 b7
+- Locrian: 1 b2 b3 4 b5 b6 b7 (Darkest)
+
+[1] For more, read this article: [http://blog.dubspot.com/music-theory-modes/](http://blog.dubspot.com/music-theory-modes/)
+
 
 ## Touch Designer
 Although Muses’ Echoes can be used with many different subsystems for visual renderings, an example application, based on TouchDesigner (https://derivative.ca)  can be found directly in this repository inside the omonimous folder.
