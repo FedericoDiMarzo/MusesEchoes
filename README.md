@@ -151,7 +151,7 @@ _osc_port = 1337
 ```
 OSC sends a value every time a change of scale occurs (useful for programming changing visuals)
 
-## SOUND DESIGN
+## Sound Design
 
 there are certain ways to use different modes, in order to produce scales and melodies. One  way to describe or distinguish one mode from another is the **mood** or **feeling** that a certain mode gives to an human being. This comes from how Bright or Dark these modes are. For example, Lydian and Ionian Modes are used in happy and spiritually uplifting music. Mixolydian and Dorian Modes are often used in blues and gospel music. The Aeolian (minor) Mode is defined as melancholy and sad while Phrygian and Locrian Modes are the go-to Modes for scary, dramatic, and otherworldly sounds. [1]
 Below we represent a Brightest to Darkest modes chart. It is possible to notice that the more Flats, the Darker the sound:
@@ -175,6 +175,7 @@ TODO: END UP CHANNELS DESCRIPTION
 ![DIRECT-PLAY](https://user-images.githubusercontent.com/60785720/123548929-2fe3e580-d767-11eb-895a-ffd2b0fd991b.JPG)
 ![MELODY](https://user-images.githubusercontent.com/60785720/123548931-307c7c00-d767-11eb-91ac-224854b8fb90.JPG)
 ![CHORDS](https://user-images.githubusercontent.com/60785720/123548928-2f4b4f00-d767-11eb-84d8-4208bf31c53a.JPG)
+![WHOLE](https://user-images.githubusercontent.com/60785720/123549067-b13b7800-d767-11eb-9eda-d5fac6fb43dd.JPG)
 
 
 ## Touch Designer
