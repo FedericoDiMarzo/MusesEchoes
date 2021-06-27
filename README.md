@@ -20,19 +20,29 @@ Can be found in muses.py class. The following are the editable parameters for an
 
 ```midi_chord_out_port```: name of the midi output port for the chords
 
- ```midi_rhythm_out_port```: name of the midi output port for the rhythm.
-```midi_mapping```: indicates how the modes are mapped to a certain midi channel.
-```midi_buffer_size```: size of the buffer used to store midi notes before pushing them in the MidiNoteQueue
-```osc_ip```: ip string for the osc node receiving information about the scale
-```osc_port```: port string the osc node receiving information about the scale
-```bpm```: floats indicating the beats per minutes of the performance
-```measures_for_scale_change```: positive integer indicating the number of measures for a change of scale
-```melody_octave_range```: tuple containing the lowest and the highest octaves used for generating the melodies
-```chord_octave_range```: tuple containing the lowest and the highest octaves used for generating the chords
-```rhythm_midi_note```: midi note used for the rhythmic sequencer track
-```markov_chains_order```: order of the Markov Chains used to generate the melodies
-```markov_chains_inertia```: value between ```[0-1]``` used to indicate the influence of old melodies in the learning
+ ```midi_rhythm_out_port```: name of the midi output port for the rhythm
+ 
+```midi_mapping```: indicates how the modes are mapped to a certain midi channel
 
+```midi_buffer_size```: size of the buffer used to store midi notes before pushing them in the MidiNoteQueue
+
+```osc_ip```: ip string for the osc node receiving information about the scale
+
+```osc_port```: port string the osc node receiving information about the scale
+
+```bpm```: floats indicating the beats per minutes of the performance
+
+```measures_for_scale_change```: positive integer indicating the number of measures for a change of scale
+
+```melody_octave_range```: tuple containing the lowest and the highest octaves used for generating the melodies
+
+```chord_octave_range```: tuple containing the lowest and the highest octaves used for generating the chords
+
+```rhythm_midi_note```: midi note used for the rhythmic sequencer track
+
+```markov_chains_order```: order of the Markov Chains used to generate the melodies
+
+```markov_chains_inertia```: value between ```[0-1]``` used to indicate the influence of old melodies in the learning
 
 
 ## Markow Chains
