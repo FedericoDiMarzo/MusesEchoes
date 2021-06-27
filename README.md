@@ -175,6 +175,7 @@ TODO: END UP CHANNELS DESCRIPTION
 ![DIRECT-PLAY](https://user-images.githubusercontent.com/60785720/123548929-2fe3e580-d767-11eb-895a-ffd2b0fd991b.JPG)
 ![MELODY](https://user-images.githubusercontent.com/60785720/123548931-307c7c00-d767-11eb-91ac-224854b8fb90.JPG)
 ![CHORDS](https://user-images.githubusercontent.com/60785720/123548928-2f4b4f00-d767-11eb-84d8-4208bf31c53a.JPG)
+![RHYTHM](https://user-images.githubusercontent.com/60785720/123549132-ea73e800-d767-11eb-8911-a85b66faa848.JPG)
 ![WHOLE](https://user-images.githubusercontent.com/60785720/123549067-b13b7800-d767-11eb-9eda-d5fac6fb43dd.JPG)
 
 
