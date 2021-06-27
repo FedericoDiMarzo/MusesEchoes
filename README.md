@@ -14,9 +14,12 @@ Muses.py is the main class that makes up the Muse's Echoes application. After an
 ### Constructor
 Can be found in muses.py class. The following are the editable parameters for an easy Muses Echoes customisation:
 
-```midi_in_port```: name of the midi input port.
-```midi_sequence_out_port```: name of the midi output port for the melody.
-```midi_chord_out_port```: name of the midi output port for the chords.
+```midi_in_port```: name of the midi input port
+
+```midi_sequence_out_port```: name of the midi output port for the melody
+
+```midi_chord_out_port```: name of the midi output port for the chords
+
  ```midi_rhythm_out_port```: name of the midi output port for the rhythm.
 ```midi_mapping```: indicates how the modes are mapped to a certain midi channel.
 ```midi_buffer_size```: size of the buffer used to store midi notes before pushing them in the MidiNoteQueue
