@@ -171,6 +171,12 @@ Below we represent a Brightest to Darkest modes chart. It is possible to notice 
 [1] For more, read this article: [http://blog.dubspot.com/music-theory-modes/](http://blog.dubspot.com/music-theory-modes/)
 
 
+![LOOP-IN](https://user-images.githubusercontent.com/60785720/123548930-307c7c00-d767-11eb-8ec0-f04a23335eef.JPG)
+![DIRECT-PLAY](https://user-images.githubusercontent.com/60785720/123548929-2fe3e580-d767-11eb-895a-ffd2b0fd991b.JPG)
+![MELODY](https://user-images.githubusercontent.com/60785720/123548931-307c7c00-d767-11eb-91ac-224854b8fb90.JPG)
+![CHORDS](https://user-images.githubusercontent.com/60785720/123548928-2f4b4f00-d767-11eb-84d8-4208bf31c53a.JPG)
+
+
 ## Touch Designer
 Although Muses’ Echoes can be used with many different subsystems for visual renderings, an example application, based on TouchDesigner (https://derivative.ca)  can be found directly in this repository inside the omonimous folder.
 
