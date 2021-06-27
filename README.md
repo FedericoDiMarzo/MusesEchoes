@@ -151,11 +151,6 @@ _osc_port = 1337
 ```
 OSC sends a value every time a change of scale occurs (useful for programming changing visuals)
 
-## DAW Set up
-Here we used the Ableton Live software but it is possible to carry out the same operations with all DAWs / software that support the management of the Midi / OSC protocol.
-
-TODO
-
 ## SOUND DESIGN
 
 there are certain ways to use different modes, in order to produce scales and melodies. One  way to describe or distinguish one mode from another is the **mood** or **feeling** that a certain mode gives to an human being. This comes from how Bright or Dark these modes are. For example, Lydian and Ionian Modes are used in happy and spiritually uplifting music. Mixolydian and Dorian Modes are often used in blues and gospel music. The Aeolian (minor) Mode is defined as melancholy and sad while Phrygian and Locrian Modes are the go-to Modes for scary, dramatic, and otherworldly sounds. [1]
@@ -170,6 +165,11 @@ Below we represent a Brightest to Darkest modes chart. It is possible to notice 
 
 [1] For more, read this article: [http://blog.dubspot.com/music-theory-modes/](http://blog.dubspot.com/music-theory-modes/)
 
+
+### DAW Set up
+Here we used the Ableton Live software but it is possible to carry out the same operations with all DAWs / software that support the management of the Midi / OSC protocol.
+
+TODO: END UP CHANNELS DESCRIPTION
 
 ![LOOP-IN](https://user-images.githubusercontent.com/60785720/123548930-307c7c00-d767-11eb-8ec0-f04a23335eef.JPG)
 ![DIRECT-PLAY](https://user-images.githubusercontent.com/60785720/123548929-2fe3e580-d767-11eb-895a-ffd2b0fd991b.JPG)
