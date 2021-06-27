@@ -11,6 +11,26 @@ The immersive experience you live inside the room will give you the possibility 
  ## muses.py
 Muses.py is the main class that makes up the Muse's Echoes application. After an object is created passing all the requested parameters to modify the settings, the application can be started calling the start method. The start method will block the execution and spawn the threads needed for the application to work. The fire_event method will than handle the synchronization between the threads.
 
+### Constructor
+Can be found in muses.py class
+```python
+        :param midi_in_port: name of the midi input port
+        :param midi_sequence_out_port: name of the midi output port for the melody
+        :param midi_chord_out_port: name of the midi output port for the chords
+        :param midi_rhythm_out_port: name of the midi output port for the rhythm
+        :param midi_mapping: indicates how the modes are mapped to a certain midi channel
+        :param midi_buffer_size: size of the buffer used to store midi notes before pushing them in the MidiNoteQueue
+        :param osc_ip: ip string for the osc node receiving information about the scale
+        :param osc_port: port string the osc node receiving information about the scale
+        :param bpm: floats indicating the beats per minutes of the performance
+        :param measures_for_scale_change: positive integer indicating the number of measures for a change of scale
+        :param melody_octave_range: tuple containing the lowest and the highest octaves used for generating the melodies
+        :param chord_octave_range: tuple containing the lowest and the highest octaves used for generating the chords
+        :param rhythm_midi_note: midi note used for the rhythmic sequencer track
+        :param markov_chains_order: order of the Markov Chains used to generate the melodies
+        :param markov_chains_inertia: value between [0-1] used to indicate the influence of old melodies in the learning
+```
+
 
 ## Markow Chains
 Muses Echoes implements a Markow chain driven through a database of Beatles songs as an “engine” for the progressive generation of melodies, chords, rhythms.
