@@ -65,6 +65,7 @@ More precisely, the “Inertia” parameter provides the possibility to totally 
 The "Order" parameter defines the order of the Markow Chain. It is possible to modify this parameter as desired, taking into account the following factors:
 - Goodness of predictions
 - Overall latency
+
 An order "3" with an inertia "0.78" generally shows itself as a good compromise.
 
 
