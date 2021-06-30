@@ -210,7 +210,7 @@ inside the const dat block named “params” (top left of the network) other se
 
 ![Screenshot (31)](https://user-images.githubusercontent.com/25433493/123935633-b16c8b00-d994-11eb-8b5b-eeaa9bf83880.png)
 
-The last change that you should do before enjoying the installation, regards the colours of the notes for each instrument. The three VEDERE_NOME top blocks contain a reset button that can be pressed for a random palette generation. Keep resetting the palettes until you find the best for your tastes.
+The last change that you should do before enjoying the installation, regards the colours of the notes for each instrument. The three tex3d top blocks contain a reset pulse button that can be pressed for a random palette generation. Keep resetting the palettes until you find the best for your tastes.
 
 ![Screenshot (32)](https://user-images.githubusercontent.com/25433493/123935657-b5001200-d994-11eb-9d74-75d951e29a78.png)
 
