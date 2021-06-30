@@ -9,10 +9,10 @@ Muses’s echoes can also be seen as an installation to be placed in a dark room
 The immersive experience you live inside the room will give you the possibility of interacting with the installation by the instruments placed inside the room.
 
  ## muses.py
-Muses.py is the main class that makes up the Muse's Echoes application. After an object is created passing all the requested parameters to modify the settings, the application can be started calling the start method. The start method will block the execution and spawn the threads needed for the application to work. The fire_event method will than handle the synchronization between the threads.
+The script muses.py contains the main class that makes up the Muses' Echoes application. After an object is created passing all the requested parameters to modify the settings, the application can be started calling the start method. The start method will block the execution and spawn the threads needed for the application to work. The fire_event method will than handle the synchronization between the threads.
 
 ### Constructor
-Can be found in muses.py class. The following are the editable parameters for an easy Muses Echoes customisation:
+Can be found in ```muses.py``` class. The following are the editable parameters for an easy Muses Echoes customization:
 
 ```midi_in_port```: name of the midi input port
 
@@ -45,16 +45,16 @@ Can be found in muses.py class. The following are the editable parameters for an
 ```markov_chains_inertia```: value between ```[0-1]``` used to indicate the influence of old melodies in the learning
 
 
-## Markow Chains
-Muses Echoes implements a Markow chain driven through a database of Beatles songs as an “engine” for the progressive generation of melodies, chords, rhythms.
+## Markov Chains
+Muses Echoes implements a Markov chain driven through a database of Beatles songs as an “engine” for the progressive generation of melodies, chords, rhythms.
 The database used is that relating to the discography of the musical group The Beatles, thanks to the great variety of tones within the songs and the considerable popularity that these songs have achieved. The generation of rhythms, chords, melodies will therefore have a completely familiar feeling.
 The database used can be found at the following link: [http://isophonics.net/content/reference-annotations-beatles](http://isophonics.net/content/reference-annotations-beatles).
 
-The process of creating the customized database comes from a "cleaning" relating to the information relating to the songs that are not necessary for the training of the Markow chains. The processing of the Structural_Segmentation, csv and Chords.csv files was useful. A Python script has been implemented which is useful for extrapolating from these .csv files only what is of interest to us.
+The process of creating the customized database comes from a "cleaning" relating to the information relating to the songs that are not necessary for the training of the Markov chains. The processing of the Structural_Segmentation, csv and Chords.csv files was useful. A Python script has been implemented which is useful for extrapolating from these .csv files only what is of interest to us. The process used to create the model, can be found in this repository https://github.com/FedericoDiMarzo/BeatlesChordsMarkovChain .
 
 The implementation of the Markov Chain was possible thanks to the use of a library provided by [Pomegranate]( https://pomegranate.readthedocs.io/en/latest/MarkovChain.html)
 
-Inside the __main__.py file, Pomegranate gives the possibility to manage two fundamental parameters for the correct functioning of Muses Echoes. The following parameters can be changed as desired based on purely artistic matters.
+Inside the ```__main__.py``` file, Pomegranate gives the possibility to manage two fundamental parameters for the correct functioning of Muses Echoes. The following parameters can be changed as desired based on artistic and performance matters.
 
 ```python
 _markov_chains_order = 3
@@ -81,6 +81,11 @@ pip install requirements.txt
 ```
 command in you shell, in order to install all the packages needed for a correct Muse’s Echoes funtioning.
 
+For some reason, the package pyaudio needs to be installed manually in a windows environment. We provided a precompiled version of it for a win_amd64 architecture. If this doesn't match your architecture, search for a correct precompiled wheel file in the web, or try to use pipwin (https://pypi.org/project/pipwin/)
+```shell
+pip install lib/PyAudio-0.2.11-cp38-cp38-win_amd64.whl
+```
+
 ## MIDI set up
 Muses Echoes needs 4 MIDI ports in input-output in the following configuration:
 - Input Ports: ```python [in]```
@@ -92,16 +97,16 @@ First of all, it is recommended to use the [loopMidi](https://www.tobias-erichse
 
  ![image](https://user-images.githubusercontent.com/60785720/123107810-293d3180-d43a-11eb-93cb-714a691745fe.png)
  
-Muse's Echoes will change the midi channel on the basis of the modal scale, starting from the Ionic mode (CH 1) up to the Locrian mode (CH 7). This behavior of the software is useful if the user wants to assign a different sound for each mode within, for example, their DAW.
+Muse's Echoes will change the midi channel on the basis of the modal scale, starting from the Ionic mode (CH 1) up to the Locrian mode (CH 7). This behavior of the software is useful if the user wants to assign a different sound for each mode within, for example, their DAW. A different scale to midi mapping can be provided in the ```__main__.py``` file.
 
 ### Selecting the right MIDI ports
-Once the __main.py file is launched, go to the terminal and type the following command:
+Once the ```__main.__py``` file is set up, go to the terminal and type the following command:
 ```shell
 python -m muses echoes
 ```
 The system will show the position of the midi ports.
 
-```shell
+```
 usage: python -m muses_echoes [in] [melodies] [chords] [rhythm]
 
 -----------
@@ -141,7 +146,7 @@ selected midi rhythm output: loop-rhythm 4
 ## OSC Set up
 Muses Echoes supports the OSC protocol for sending data. These data can be used for the management of a particular graphic interface through for example the [MadMapper](https://madmapper.com/) software, [Processing](https://processing.org/), [TouchDesigner](https://derivative.ca/), or a [DMX](https://it.wikipedia.org/wiki/Digital_MultipleX) control unit or anything else.
 A different value is sent through the OSC protocol each time a scale change occurs.
-Inside the __main__.py file there is the area where you can set parameters such as:
+Inside the ```__main__.py``` file there is the area where you can set parameters such as:
 - IP address (default: 127.0.0.1)
 - UDP port (default: 1337)
 
@@ -201,7 +206,7 @@ Regarding the osc settings, the default port 1337 is already configured, if you 
 
 FOTO_OSC
 
-inside the const dat block named “parameters” (top left of the network) other settings can be modified, affecting the visuals, such as the midi note extensions of the various midi instruments, the size of the rendered notes, the vertical speed, etc..
+inside the const dat block named “params” (top left of the network) other settings can be modified, affecting the visuals, such as the midi note extensions of the various midi instruments, the size of the rendered notes, the vertical speed, etc..
 
 FOTO_PARAMETERS
 
