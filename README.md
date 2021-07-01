@@ -175,6 +175,8 @@ Below we represent a Brightest to Darkest modes chart. It is possible to notice 
 ### DAW Set up
 Here we used the Ableton Live software but it is possible to carry out the same operations with all DAWs / software that support the management of the Midi / OSC protocol.
 
+Here our Ableton Live settings:
+
 ![LOOP-IN](https://user-images.githubusercontent.com/60785720/123548930-307c7c00-d767-11eb-8ec0-f04a23335eef.JPG)
 ![DIRECT-PLAY](https://user-images.githubusercontent.com/60785720/123548929-2fe3e580-d767-11eb-895a-ffd2b0fd991b.JPG)
 ![MELODY](https://user-images.githubusercontent.com/60785720/123548931-307c7c00-d767-11eb-91ac-224854b8fb90.JPG)
