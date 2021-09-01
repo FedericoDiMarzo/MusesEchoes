@@ -1,7 +1,11 @@
 ##
-### [Video of the whole system running](https://youtu.be/8IJ5-5ZLTEk)
-Hardware: Novation Launchkey Mini mk3
-Software: Ableton Live 10 - TouchDesigner - LoopMidi - OBS
+### [Video promo](https://youtu.be/8IJ5-5ZLTEk)
+The video shows the hole system set up and running on Windows 10 PC.
+
+Hardware: Novation Launchkey Mini mk3.
+
+Software: Ableton Live 10 - TouchDesigner - LoopMidi - OBS.
+
 ##
 ## Muses Echoes
 
